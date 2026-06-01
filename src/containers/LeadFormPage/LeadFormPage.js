@@ -3,8 +3,48 @@ import React, { useMemo, useState } from 'react';
 import css from './LeadFormPage.module.css';
 
 const WEBHOOK_URL = process.env.REACT_APP_GEOPETSHOP_FORM_WEBHOOK_URL;
-
 const ASSET_BASE = '/static/geopetshop-form';
+
+const DIPLOMAS = {
+  sobreprotectora: 'diploma_sobreprotectora.png',
+  zen: 'diploma_zen.png',
+  gourmet: 'diploma_gourmet.png',
+  jugadora: 'diploma_jugadora.png',
+  primeriza: 'diploma_primeriza.png',
+};
+
+const PROFILES = {
+  sobreprotectora: {
+    name: 'Karen Sobreprotectora',
+    icon: '🛡️',
+    description:
+      'No deja que le pase ni una a su michi. Vigila cada maullido, cada estornudo y cada salto. Su amor no tiene límites.',
+  },
+  zen: {
+    name: 'Karen Zen',
+    icon: '🧘',
+    description:
+      'Relajada, confía en el instinto gatuno y deja que su michi sea quien es. Su casa es un templo de paz felina.',
+  },
+  gourmet: {
+    name: 'Karen Gourmet',
+    icon: '🍽️',
+    description:
+      'Su gato come mejor que ella y no le da vergüenza admitirlo. Si existe una versión premium, su michi ya la probó.',
+  },
+  jugadora: {
+    name: 'Karen Jugadora',
+    icon: '🎾',
+    description:
+      'Vive inventando juegos, escondites y desafíos. Cree que un gato aburrido es un gato triste, y tiene razón.',
+  },
+  primeriza: {
+    name: 'Karen Primeriza',
+    icon: '🌱',
+    description:
+      'Recién arranca la aventura gatuna y todo le parece nuevo. Tiene mil preguntas y quiere hacerlo bien desde el día uno.',
+  },
+};
 
 const CAT_FIELD_KEYS = [
   { nameKey: 'question_V0l5X6', birthKey: 'question_P6E5Lx' },
@@ -32,12 +72,54 @@ const QUANTITY_OPTIONS = [
   { id: '5e09d5c6-9b84-477e-bbde-ef28e603000c', text: '10' },
 ];
 
-const yesNoOptions = [
+const YES_NO_OPTIONS = [
   { id: 'yes', text: 'Si' },
   { id: 'no', text: 'No' },
 ];
 
-const initialPets = [{ name: '', birthDate: '' }];
+const QUIZ_QUESTIONS = [
+  {
+    title: '¿Cuál es tu reacción cuando tu gato rompe algo?',
+    options: [
+      { emoji: '😱', text: 'Pánico total, reviso que esté bien', profile: 'sobreprotectora' },
+      { emoji: '😌', text: 'Ya fue, los gatos son gatos', profile: 'zen' },
+      { emoji: '📸', text: 'Le saco foto antes de limpiar', profile: 'gourmet' },
+      { emoji: '😰', text: 'No sé, busco en Google', profile: 'primeriza' },
+    ],
+  },
+  {
+    title: 'Si tu gato pudiera hablar, ¿qué diría?',
+    options: [
+      { emoji: '🍽️', text: 'Tengo hambre, algo rico', profile: 'gourmet' },
+      { emoji: '🎾', text: '¡Jugá conmigo AHORA!', profile: 'jugadora' },
+      { emoji: '😴', text: 'Dejame dormir en paz', profile: 'zen' },
+      { emoji: '💕', text: 'Te amo, gracias por cuidarme', profile: 'sobreprotectora' },
+    ],
+  },
+  {
+    title: '¿Cuánto gastás por mes en tu michi?',
+    options: [
+      { emoji: '💵', text: 'Solo lo básico', profile: 'primeriza' },
+      { emoji: '💰', text: 'Lo justo y necesario', profile: 'zen' },
+      { emoji: '💸', text: 'Bastante, siempre hay algo nuevo', profile: 'gourmet' },
+      { emoji: '💎', text: 'No quiero ni contar', profile: 'sobreprotectora' },
+    ],
+  },
+  {
+    title: '¿Qué hacés con tu gato cuando viajás?',
+    options: [
+      { emoji: '🧳', text: 'Lo llevo conmigo', profile: 'sobreprotectora' },
+      { emoji: '🏨', text: 'Hotel cat de lujo', profile: 'gourmet' },
+      { emoji: '🏠', text: 'Un familiar lo cuida', profile: 'zen' },
+      { emoji: '❓', text: 'Nunca me pasó, no sé', profile: 'primeriza' },
+    ],
+  },
+];
+
+const emptyPet = () => ({
+  name: '',
+  birthDate: '',
+});
 
 const todayISO = () => new Date().toISOString().slice(0, 10);
 
@@ -54,73 +136,62 @@ const field = ({ key, label, type, value, options }) => ({
   ...(options ? { options } : {}),
 });
 
-const getDiploma = ({ pets, saleAfuera, convive }) => {
-  const hasYoungPet = pets.some(p => {
-    if (!p.birthDate) return false;
+const getWinnerProfile = answers => {
+  const scores = {};
 
-    const birthDate = new Date(`${p.birthDate}T00:00:00`);
-    const now = new Date();
-    const ageMs = now.getTime() - birthDate.getTime();
-    const ageYears = ageMs / (365.25 * 24 * 60 * 60 * 1000);
-
-    return ageYears < 1;
+  answers.filter(Boolean).forEach(profile => {
+    const weight = profile === 'jugadora' ? 3.25 : 1;
+    scores[profile] = (scores[profile] || 0) + weight;
   });
 
-  if (hasYoungPet) {
-    return {
-      title: 'Tutor primerizo',
-      file: 'diploma_primeriza.png',
-    };
-  }
+  const keys = Object.keys(scores);
+  if (!keys.length) return 'sobreprotectora';
 
-  if (saleAfuera === 'No' && convive === 'No') {
-    return {
-      title: 'Tutor sobreprotector',
-      file: 'diploma_sobreprotectora.png',
-    };
-  }
+  const priority = ['jugadora', 'gourmet', 'sobreprotectora', 'primeriza', 'zen'];
 
-  if (convive === 'Si' || pets.length > 1) {
-    return {
-      title: 'Tutor social',
-      file: 'diploma_jugadora.png',
-    };
-  }
-
-  return {
-    title: 'Tutor zen',
-    file: 'diploma_zen.png',
-  };
+  return keys.reduce((winner, current) => {
+    if (scores[current] > scores[winner]) return current;
+    if (
+      scores[current] === scores[winner] &&
+      priority.indexOf(current) < priority.indexOf(winner)
+    ) {
+      return current;
+    }
+    return winner;
+  });
 };
 
 const buildTallyCompatiblePayload = formData => {
   const {
-    fullName,
+    firstName,
+    lastName,
     email,
     phone,
     quantity,
     pets,
     saleAfuera,
     convive,
-    diplomaTitle,
+    winningProfile,
+    quizAnswers,
   } = formData;
 
   const quantityOptionId = getQuantityOptionId(quantity);
   const saleAfueraOptionId = saleAfuera === 'Si' ? 'yes' : 'no';
   const conviveOptionId = convive === 'Si' ? 'yes' : 'no';
+  const profile = PROFILES[winningProfile];
 
   const fields = [
     field({
       key: 'question_48krRY',
-      label: 'Nombre y apellido',
+      label: 'Nombre',
       type: 'INPUT_TEXT',
-      value: fullName,
+      value: firstName,
     }),
     field({
       key: 'question_ZNz0M0',
       label: 'Apellido',
       type: 'INPUT_TEXT',
-      value: '',
+      value: lastName,
     }),
     field({
       key: 'question_vABYaD',
@@ -171,7 +242,7 @@ const buildTallyCompatiblePayload = formData => {
       label: '¿El gato sale afuera?',
       type: 'DROPDOWN',
       value: [saleAfueraOptionId],
-      options: yesNoOptions,
+      options: YES_NO_OPTIONS,
     })
   );
 
@@ -181,7 +252,7 @@ const buildTallyCompatiblePayload = formData => {
       label: '¿Convive o esta en contacto con otros gatos?',
       type: 'DROPDOWN',
       value: [conviveOptionId],
-      options: yesNoOptions,
+      options: YES_NO_OPTIONS,
     })
   );
 
@@ -190,7 +261,16 @@ const buildTallyCompatiblePayload = formData => {
       key: 'geopetshop_diploma',
       label: 'Diploma GeoPetShop',
       type: 'INPUT_TEXT',
-      value: diplomaTitle,
+      value: profile.name,
+    })
+  );
+
+  fields.push(
+    field({
+      key: 'geopetshop_quiz_respuestas',
+      label: 'Respuestas quiz GeoPetShop',
+      type: 'INPUT_TEXT',
+      value: quizAnswers.join(', '),
     })
   );
 
@@ -213,20 +293,29 @@ const buildTallyCompatiblePayload = formData => {
 };
 
 const LeadFormPage = () => {
-  const [fullName, setFullName] = useState('');
+  const [step, setStep] = useState(0);
+
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
+
   const [quantity, setQuantity] = useState(1);
-  const [pets, setPets] = useState(initialPets);
-  const [saleAfuera, setSaleAfuera] = useState('No');
+  const [pets, setPets] = useState([emptyPet()]);
+  const [saleAfuera, setSaleAfuera] = useState('');
   const [convive, setConvive] = useState('No');
-  const [accepted, setAccepted] = useState(false);
+
+  const [catPhoto, setCatPhoto] = useState('');
+  const [quizAnswers, setQuizAnswers] = useState([]);
 
   const [submitState, setSubmitState] = useState('idle');
   const [errorMessage, setErrorMessage] = useState('');
-  const [resultDiploma, setResultDiploma] = useState(null);
+  const [winningProfile, setWinningProfile] = useState(null);
 
   const maxBirthDate = useMemo(() => todayISO(), []);
+  const progress = step === 0 ? 0 : Math.min(100, Math.round((step / 9) * 100));
+
+  const primaryPetName = pets[0]?.name || 'tu michi';
 
   const updateQuantity = value => {
     const nextQuantity = Number(value);
@@ -236,7 +325,7 @@ const LeadFormPage = () => {
       const nextPets = [...currentPets];
 
       while (nextPets.length < nextQuantity) {
-        nextPets.push({ name: '', birthDate: '' });
+        nextPets.push(emptyPet());
       }
 
       return nextPets.slice(0, nextQuantity);
@@ -258,107 +347,172 @@ const LeadFormPage = () => {
     });
   };
 
-  const validate = () => {
-    if (!fullName.trim()) return 'Completá tu nombre y apellido.';
+  const validateStep1 = () => {
+    if (!firstName.trim()) return 'Completá tu nombre.';
+    if (!lastName.trim()) return 'Completá tu apellido.';
     if (!email.trim()) return 'Completá tu email.';
-    if (!phone.trim()) return 'Completá tu WhatsApp o celular.';
+    if (!phone.trim()) return 'Completá tu celular.';
+    return null;
+  };
 
+  const validateStep2 = () => {
     for (let i = 0; i < pets.length; i++) {
       if (!pets[i].name.trim()) return `Completá el nombre del gato ${i + 1}.`;
       if (!pets[i].birthDate) return `Completá la fecha de nacimiento del gato ${i + 1}.`;
     }
 
-    if (!accepted) return 'Tenés que aceptar recibir comunicaciones para continuar.';
-
+    if (!saleAfuera) return 'Indicá si alguno de tus gatos sale de casa.';
+    if (!convive) return 'Indicá si convive o está en contacto con otros gatos.';
     return null;
   };
 
-  const handleSubmit = async e => {
-    e.preventDefault();
+  const goToStep = nextStep => {
+    setErrorMessage('');
+    setStep(nextStep);
+    if (typeof window !== 'undefined') window.scrollTo(0, 0);
+  };
 
-    const validationError = validate();
-    if (validationError) {
-      setErrorMessage(validationError);
+  const nextFromStep1 = () => {
+    const error = validateStep1();
+    if (error) {
+      setErrorMessage(error);
       return;
     }
+    goToStep(2);
+  };
+
+  const nextFromStep2 = () => {
+    const error = validateStep2();
+    if (error) {
+      setErrorMessage(error);
+      return;
+    }
+    goToStep(3);
+  };
+
+  const handlePhoto = event => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+
+    reader.onload = e => {
+      setCatPhoto(e.target.result);
+    };
+
+    reader.readAsDataURL(file);
+  };
+
+  const answerQuiz = (questionIndex, profile) => {
+    const nextAnswers = [...quizAnswers];
+    nextAnswers[questionIndex] = profile;
+    setQuizAnswers(nextAnswers);
+
+    setTimeout(() => {
+      if (questionIndex < QUIZ_QUESTIONS.length - 1) {
+        goToStep(4 + questionIndex + 1);
+      } else {
+        goToStep(8);
+        setTimeout(() => submitAndShowResult(nextAnswers), 900);
+      }
+    }, 180);
+  };
+
+  const submitAndShowResult = async finalAnswers => {
+    const winner = getWinnerProfile(finalAnswers);
+    setWinningProfile(winner);
 
     if (!WEBHOOK_URL) {
+      setSubmitState('error');
       setErrorMessage('No está configurado el webhook del formulario.');
+      goToStep(9);
       return;
     }
 
-    setSubmitState('loading');
-    setErrorMessage('');
-
-    const diploma = getDiploma({ pets, saleAfuera, convive });
-
     const tallyPayload = buildTallyCompatiblePayload({
-      fullName,
+      firstName,
+      lastName,
       email,
       phone,
       quantity,
       pets,
       saleAfuera,
       convive,
-      diplomaTitle: diploma.title,
+      winningProfile: winner,
+      quizAnswers: finalAnswers,
     });
 
-    const payload = {
-      body: tallyPayload,
-      source: 'geopetshop-sharetribe-front',
-      page: '/formulario',
-      url: typeof window !== 'undefined' ? window.location.href : '',
-    };
-
     try {
+      setSubmitState('loading');
+
       const response = await fetch(WEBHOOK_URL, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(payload),
+        body: JSON.stringify(tallyPayload),
       });
 
       if (!response.ok) {
         throw new Error(`Webhook error ${response.status}`);
       }
 
-      setResultDiploma(diploma);
       setSubmitState('success');
     } catch (error) {
       setSubmitState('error');
       setErrorMessage(
-        'No pudimos enviar el formulario. Probá de nuevo en unos minutos.'
+        'El registro se completó en pantalla, pero no pudimos confirmar el envío a n8n. Si el contacto no aparece en Clientify, revisamos CORS o el webhook.'
       );
+    } finally {
+      goToStep(9);
     }
   };
 
-  const diplomaUrl = resultDiploma ? `${ASSET_BASE}/${resultDiploma.file}` : '';
+  const reset = () => {
+    setStep(0);
+    setFirstName('');
+    setLastName('');
+    setEmail('');
+    setPhone('');
+    setQuantity(1);
+    setPets([emptyPet()]);
+    setSaleAfuera('');
+    setConvive('No');
+    setCatPhoto('');
+    setQuizAnswers([]);
+    setSubmitState('idle');
+    setErrorMessage('');
+    setWinningProfile(null);
+  };
+
+  const profile = winningProfile ? PROFILES[winningProfile] : null;
+  const diplomaFile = winningProfile ? DIPLOMAS[winningProfile] : null;
+  const diplomaUrl = diplomaFile ? `${ASSET_BASE}/${diplomaFile}` : '';
 
   const downloadDiploma = () => {
     if (!diplomaUrl) return;
 
     const link = document.createElement('a');
     link.href = diplomaUrl;
-    link.download = resultDiploma.file;
+    link.download = diplomaFile;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
   };
 
   const shareDiploma = async () => {
-    if (!resultDiploma) return;
+    if (!profile || !diplomaUrl) return;
 
-    const shareText = `Me registré en GeoPetShop y obtuve mi diploma: ${resultDiploma.title}`;
+    const shareText = `Ya soy parte de la Academia Stonecat. Mi perfil es ${profile.name}.`;
 
     try {
       const response = await fetch(diplomaUrl);
       const blob = await response.blob();
-      const file = new File([blob], resultDiploma.file, { type: blob.type || 'image/png' });
+      const file = new File([blob], diplomaFile, { type: blob.type || 'image/png' });
 
       if (navigator.canShare && navigator.canShare({ files: [file] })) {
         await navigator.share({
-          title: 'Mi diploma GeoPetShop',
+          title: 'Mi diploma Stonecat',
           text: shareText,
           files: [file],
         });
@@ -367,7 +521,7 @@ const LeadFormPage = () => {
 
       if (navigator.share) {
         await navigator.share({
-          title: 'Mi diploma GeoPetShop',
+          title: 'Mi diploma Stonecat',
           text: shareText,
           url: typeof window !== 'undefined' ? window.location.href : '',
         });
@@ -380,179 +534,316 @@ const LeadFormPage = () => {
     }
   };
 
-  return (
-    <main className={css.page}>
-      <section className={css.hero}>
-        <div className={css.heroContent}>
-          <img
-            src={`${ASSET_BASE}/stonecat-logo.jpg`}
-            alt="Stonecat"
-            className={css.partnerLogo}
-          />
-          <p className={css.eyebrow}>Calendario de vacunación</p>
-          <h1>Registrá a tus gatos y recibí avisos útiles</h1>
-          <p className={css.heroText}>
-            Te ayudamos a recordar fechas importantes, cuidados y novedades para acompañar mejor a tus mascotas.
-          </p>
+  const renderHeader = () => {
+    if (step === 0) return null;
+
+    return (
+      <div className={css.header}>
+        <button
+          type="button"
+          className={css.backButton}
+          onClick={() => goToStep(Math.max(0, step - 1))}
+          disabled={step === 9}
+        >
+          ← Volver
+        </button>
+        <img src={`${ASSET_BASE}/stonecat-logo.jpg`} alt="Academia Stonecat" className={css.logo} />
+        <div className={css.progressBar}>
+          <div className={css.progressFill} style={{ width: `${progress}%` }} />
         </div>
-        <div className={css.heroImageWrap}>
-          <img
-            src={`${ASSET_BASE}/portada-mvp.webp`}
-            alt="Gato feliz"
-            className={css.heroImage}
-          />
-        </div>
-      </section>
+      </div>
+    );
+  };
 
-      <section className={css.formSection}>
-        <div className={css.formIntro}>
-          <h2>Completá tus datos</h2>
-          <p>
-            Podés cargar más de un gato. Al finalizar vas a poder descargar o compartir tu diploma.
-          </p>
-        </div>
+  const renderPortada = () => (
+    <section className={`${css.screen} ${css.coverScreen}`}>
+      <img src={`${ASSET_BASE}/stonecat-logo.jpg`} alt="Academia Stonecat" className={css.coverLogo} />
+      <img src={`${ASSET_BASE}/portada-mvp.webp`} alt="Academia Stonecat" className={css.coverImage} />
+      <div className={css.coverContent}>
+        <p className={css.label}>Calendario de vacunación</p>
+        <h1>Registrate para recibir avisos y descubrir tu perfil Karen</h1>
+        <p>
+          Cargá los datos de tus gatos, respondé un quiz rápido y obtené tu diploma de la Academia Stonecat.
+        </p>
+        <button type="button" className={`${css.button} ${css.primary}`} onClick={() => goToStep(1)}>
+          Empezar 🐾
+        </button>
+      </div>
+    </section>
+  );
 
-        {submitState === 'success' && resultDiploma ? (
-          <div className={css.successCard}>
-            <p className={css.eyebrow}>Registro completado</p>
-            <h2>¡Listo! Ya estás registrado.</h2>
-            <p>
-              Tu resultado es: <strong>{resultDiploma.title}</strong>
-            </p>
-            <img
-              src={diplomaUrl}
-              alt={`Diploma ${resultDiploma.title}`}
-              className={css.diploma}
-            />
-            <div className={css.actions}>
-              <button type="button" className={css.primaryButton} onClick={shareDiploma}>
-                Compartir diploma
-              </button>
-              <button type="button" className={css.secondaryButton} onClick={downloadDiploma}>
-                Descargar
-              </button>
-            </div>
-          </div>
-        ) : (
-          <form className={css.form} onSubmit={handleSubmit}>
-            <div className={css.grid2}>
-              <label className={css.field}>
-                <span>Nombre y apellido</span>
-                <input
-                  type="text"
-                  value={fullName}
-                  onChange={e => setFullName(e.target.value)}
-                  autoComplete="name"
-                  placeholder="Ej. Majo Pérez"
-                />
-              </label>
+  const renderStep1 = () => (
+    <section className={css.screen}>
+      <p className={css.label}>📋 PASO 1 DE 3</p>
+      <h2>Datos del tutor</h2>
+      <p className={css.subtitle}>Contanos quién sos para mandarte todo por mail.</p>
 
-              <label className={css.field}>
-                <span>Email</span>
-                <input
-                  type="email"
-                  value={email}
-                  onChange={e => setEmail(e.target.value)}
-                  autoComplete="email"
-                  placeholder="tu@email.com"
-                />
-              </label>
-            </div>
+      <div className={css.twoColumns}>
+        <label className={css.field}>
+          <span>Nombre *</span>
+          <input value={firstName} onChange={e => setFirstName(e.target.value)} placeholder="María" />
+        </label>
 
-            <div className={css.grid2}>
-              <label className={css.field}>
-                <span>WhatsApp / celular</span>
-                <input
-                  type="tel"
-                  value={phone}
-                  onChange={e => setPhone(e.target.value)}
-                  autoComplete="tel"
-                  placeholder="+54 9 11..."
-                />
-              </label>
+        <label className={css.field}>
+          <span>Apellido *</span>
+          <input value={lastName} onChange={e => setLastName(e.target.value)} placeholder="López" />
+        </label>
+      </div>
 
-              <label className={css.field}>
-                <span>¿Cuántos gatos tenés?</span>
-                <select value={quantity} onChange={e => updateQuantity(e.target.value)}>
-                  {QUANTITY_OPTIONS.map(option => (
-                    <option key={option.id} value={option.text}>
-                      {option.text}
-                    </option>
-                  ))}
-                </select>
-              </label>
-            </div>
+      <label className={css.field}>
+        <span>Email *</span>
+        <input
+          type="email"
+          value={email}
+          onChange={e => setEmail(e.target.value)}
+          placeholder="maria@email.com"
+        />
+      </label>
 
-            <div className={css.petBox}>
-              <h3>Datos de tus gatos</h3>
-              {pets.map((pet, index) => (
-                <div className={css.petRow} key={`pet-${index}`}>
-                  <label className={css.field}>
-                    <span>Nombre del gato {index + 1}</span>
-                    <input
-                      type="text"
-                      value={pet.name}
-                      onChange={e => updatePet(index, 'name', e.target.value)}
-                      placeholder="Ej. Garfield"
-                    />
-                  </label>
+      <label className={css.field}>
+        <span>Celular *</span>
+        <input
+          type="tel"
+          value={phone}
+          onChange={e => setPhone(e.target.value)}
+          placeholder="+54 11 1234 5678"
+        />
+      </label>
 
-                  <label className={css.field}>
-                    <span>Fecha de nacimiento</span>
-                    <input
-                      type="date"
-                      value={pet.birthDate}
-                      max={maxBirthDate}
-                      onChange={e => updatePet(index, 'birthDate', e.target.value)}
-                    />
-                  </label>
-                </div>
-              ))}
-            </div>
+      {errorMessage ? <p className={css.error}>{errorMessage}</p> : null}
 
-            <div className={css.grid2}>
-              <label className={css.field}>
-                <span>¿Alguno sale afuera?</span>
-                <select value={saleAfuera} onChange={e => setSaleAfuera(e.target.value)}>
-                  <option value="No">No</option>
-                  <option value="Si">Si</option>
-                </select>
-              </label>
+      <button type="button" className={`${css.button} ${css.primary}`} onClick={nextFromStep1}>
+        Siguiente →
+      </button>
+    </section>
+  );
 
-              <label className={css.field}>
-                <span>¿Convive o está en contacto con otros gatos?</span>
-                <select
-                  value={convive}
-                  onChange={e => setConvive(e.target.value)}
-                  disabled={quantity > 1}
-                >
-                  <option value="No">No</option>
-                  <option value="Si">Si</option>
-                </select>
-              </label>
-            </div>
+  const renderStep2 = () => (
+    <section className={css.screen}>
+      <p className={css.label}>🐾 PASO 2 DE 3</p>
+      <h2>Sobre tu hogar gatuno</h2>
+      <p className={css.subtitle}>Podés cargar más de un gato. La foto es opcional y solo se usa para el diploma.</p>
 
-            <label className={css.checkbox}>
+      <label className={css.field}>
+        <span>¿Cuántos gatitos tenés? *</span>
+        <select value={quantity} onChange={e => updateQuantity(e.target.value)}>
+          {QUANTITY_OPTIONS.map(option => (
+            <option key={option.id} value={option.text}>
+              {option.text}
+            </option>
+          ))}
+        </select>
+      </label>
+
+      <div className={css.petBox}>
+        {pets.map((pet, index) => (
+          <div className={css.petRow} key={`pet-${index}`}>
+            <label className={css.field}>
+              <span>Nombre del gato {index + 1} *</span>
               <input
-                type="checkbox"
-                checked={accepted}
-                onChange={e => setAccepted(e.target.checked)}
+                value={pet.name}
+                onChange={e => updatePet(index, 'name', e.target.value)}
+                placeholder={index === 0 ? 'Michi' : `Michi ${index + 1}`}
               />
-              <span>Acepto recibir comunicaciones de GeoPetShop sobre vacunación, cuidados y novedades.</span>
             </label>
 
-            {errorMessage ? <p className={css.error}>{errorMessage}</p> : null}
+            <label className={css.field}>
+              <span>Fecha de nacimiento *</span>
+              <input
+                type="date"
+                value={pet.birthDate}
+                max={maxBirthDate}
+                onChange={e => updatePet(index, 'birthDate', e.target.value)}
+              />
+              <small>Aproximada si no sabés la exacta.</small>
+            </label>
+          </div>
+        ))}
+      </div>
 
+      <div className={css.field}>
+        <span>¿Alguno de tus gatos sale de casa? *</span>
+        <div className={css.radioGroup}>
+          {['Si', 'No', 'A veces'].map(value => (
             <button
-              type="submit"
-              className={css.primaryButton}
-              disabled={submitState === 'loading'}
+              key={value}
+              type="button"
+              className={`${css.radioButton} ${saleAfuera === value ? css.selected : ''}`}
+              onClick={() => setSaleAfuera(value)}
             >
-              {submitState === 'loading' ? 'Enviando...' : 'Quiero recibir avisos'}
+              {value}
             </button>
-          </form>
-        )}
+          ))}
+        </div>
+      </div>
+
+      <div className={css.field}>
+        <span>¿Convive o está en contacto con otros gatos? *</span>
+        <div className={css.radioGroup}>
+          {['Si', 'No'].map(value => (
+            <button
+              key={value}
+              type="button"
+              className={`${css.radioButton} ${convive === value ? css.selected : ''}`}
+              onClick={() => setConvive(value)}
+              disabled={quantity > 1 && value === 'No'}
+            >
+              {value}
+            </button>
+          ))}
+        </div>
+        {quantity > 1 ? <small>Como cargaste más de un gato, marcamos esta respuesta como “Si”.</small> : null}
+      </div>
+
+      <div className={css.field}>
+        <span>📸 Subí una foto de tu michi principal (opcional)</span>
+        <label className={css.photoUpload}>
+          {catPhoto ? (
+            <img src={catPhoto} alt="Preview del gato" className={css.photoPreview} />
+          ) : (
+            <span>
+              <strong>🐱 Tocá para subir una foto</strong>
+              <small>JPG o PNG · No es obligatorio</small>
+            </span>
+          )}
+          <input type="file" accept="image/*" onChange={handlePhoto} />
+        </label>
+      </div>
+
+      {errorMessage ? <p className={css.error}>{errorMessage}</p> : null}
+
+      <button type="button" className={`${css.button} ${css.primary}`} onClick={nextFromStep2}>
+        Siguiente →
+      </button>
+    </section>
+  );
+
+  const renderQuizIntro = () => (
+    <section className={css.screen}>
+      <p className={css.label}>🎯 PASO 3 DE 3</p>
+      <h2>Ahora lo divertido 🎉</h2>
+      <p className={css.text}>
+        4 preguntas rápidas para descubrir qué tipo de Karen sos.
+        <br />
+        <br />
+        Tus respuestas van a <strong>personalizar el contenido</strong> que te mandemos para tus gatos.
+      </p>
+      <button type="button" className={`${css.button} ${css.primary}`} onClick={() => goToStep(4)}>
+        Empezar el quiz 🐾
+      </button>
+    </section>
+  );
+
+  const renderQuestion = questionIndex => {
+    const question = QUIZ_QUESTIONS[questionIndex];
+    const selectedProfile = quizAnswers[questionIndex];
+
+    return (
+      <section className={css.screen}>
+        <p className={css.label}>🎯 PREGUNTA {questionIndex + 1} DE 4</p>
+        <h2>{question.title}</h2>
+
+        <div className={css.options}>
+          {question.options.map(option => (
+            <button
+              key={`${questionIndex}-${option.profile}-${option.text}`}
+              type="button"
+              className={`${css.option} ${selectedProfile === option.profile ? css.selectedOption : ''}`}
+              onClick={() => answerQuiz(questionIndex, option.profile)}
+            >
+              <span>{option.emoji}</span>
+              {option.text}
+            </button>
+          ))}
+        </div>
       </section>
+    );
+  };
+
+  const renderLoading = () => (
+    <section className={css.screen}>
+      <div className={css.loading}>
+        <div className={css.catAnimation}>🎓</div>
+        <p>
+          Calculando tu perfil Karen
+          <br />
+          Te estamos graduando ✨
+        </p>
+      </div>
+    </section>
+  );
+
+  const renderResult = () => (
+    <section className={css.screen}>
+      <div className={css.resultIcon}>✨</div>
+      <h2 className={css.resultTitle}>¡Ya sos parte de la Academia!</h2>
+
+      {profile ? (
+        <>
+          <p className={css.text}>
+            <strong>{firstName}</strong>, tu perfil es{' '}
+            <strong className={css.accent}>{profile.name}</strong>.
+          </p>
+          <p className={css.text}>{profile.description}</p>
+
+          <div className={css.diplomaWrap}>
+            <img src={diplomaUrl} alt={`Diploma ${profile.name}`} className={css.diplomaBg} />
+            <div className={css.diplomaOverlay}>
+              <div className={css.diplomaName}>
+                {firstName} {lastName}
+              </div>
+              {catPhoto ? <img src={catPhoto} alt={primaryPetName} className={css.diplomaPhoto} /> : null}
+              <div className={css.diplomaCatName}>{primaryPetName}</div>
+            </div>
+          </div>
+
+          <div className={css.shareActions}>
+            <button type="button" className={`${css.button} ${css.primary}`} onClick={shareDiploma}>
+              📱 Compartir
+            </button>
+            <button type="button" className={`${css.button} ${css.secondary}`} onClick={downloadDiploma}>
+              Descargar
+            </button>
+            <button type="button" className={`${css.button} ${css.ghost}`} onClick={reset}>
+              🔄 Reiniciar
+            </button>
+          </div>
+
+          <p className={css.successText}>🎁 Revisá tu mail: diploma + tips personalizados según tu perfil.</p>
+
+          {submitState === 'success' ? (
+            <p className={css.webhookOk}>✅ Datos enviados correctamente.</p>
+          ) : null}
+
+          {submitState === 'error' && errorMessage ? <p className={css.error}>{errorMessage}</p> : null}
+        </>
+      ) : (
+        <>
+          <p className={css.error}>No pudimos calcular el resultado. Volvé a intentar.</p>
+          <button type="button" className={`${css.button} ${css.primary}`} onClick={reset}>
+            Reiniciar
+          </button>
+        </>
+      )}
+    </section>
+  );
+
+  return (
+    <main className={css.page}>
+      <div className={css.app}>
+        {renderHeader()}
+
+        {step === 0 ? renderPortada() : null}
+        {step === 1 ? renderStep1() : null}
+        {step === 2 ? renderStep2() : null}
+        {step === 3 ? renderQuizIntro() : null}
+        {step === 4 ? renderQuestion(0) : null}
+        {step === 5 ? renderQuestion(1) : null}
+        {step === 6 ? renderQuestion(2) : null}
+        {step === 7 ? renderQuestion(3) : null}
+        {step === 8 ? renderLoading() : null}
+        {step === 9 ? renderResult() : null}
+      </div>
     </main>
   );
 };
