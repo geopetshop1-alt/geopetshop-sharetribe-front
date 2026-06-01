@@ -331,6 +331,8 @@ const buildTallyCompatiblePayload = formData => {
 };
 
 const LeadFormPage = () => {
+  console.log('STONECAT_FORM_VERSION', '2026-06-01-quiz-result-debug-v1');
+  
   const [step, setStep] = useState(0);
 
   const [firstName, setFirstName] = useState('');
@@ -417,9 +419,17 @@ const LeadFormPage = () => {
   };
 
   const goToStep = nextStep => {
+    console.log('STONECAT_GO_TO_STEP', {
+      from: step,
+      to: nextStep,
+    });
+  
     setErrorMessage('');
     setStep(nextStep);
-    if (typeof window !== 'undefined') window.scrollTo(0, 0);
+  
+    if (typeof window !== 'undefined') {
+      window.scrollTo(0, 0);
+    }
   };
 
   const nextFromStep1 = () => {
@@ -454,6 +464,13 @@ const LeadFormPage = () => {
   };
 
   const answerQuiz = (questionIndex, profileAnswer) => {
+    console.log('STONECAT_ANSWER_QUIZ_START', {
+      questionIndex,
+      profileAnswer,
+      currentStep: step,
+      currentAnswers: quizAnswers,
+    });
+    
     const nextAnswers = [...quizAnswers];
     nextAnswers[questionIndex] = profileAnswer;
     setQuizAnswers(nextAnswers);
@@ -467,6 +484,10 @@ const LeadFormPage = () => {
       const winner = getWinnerProfile(nextAnswers);
   
       // Primero mostramos resultado, siempre.
+      console.log('STONECAT_QUIZ_FINISHED', {
+        nextAnswers,
+        winner,
+      });
       setWinningProfile(winner);
       setSubmitState('loading');
       setErrorMessage('');
@@ -667,6 +688,20 @@ const makeFinalDiplomaBlob = async () => {
     });
   };
 
+  const downloadDiploma = async () => {
+    const blob = await makeFinalDiplomaBlob();
+  
+    if (!blob) return;
+  
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `diploma-stonecat-${primaryPetName}.png`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
   
   const shareDiploma = async () => {
     if (!profile) return;
@@ -946,60 +981,72 @@ const makeFinalDiplomaBlob = async () => {
     </section>
   );
 
-  const renderResult = () => (
-    <section className={css.screen}>
-      <div className={css.resultIcon}>✨</div>
-      <h2 className={css.resultTitle}>¡Ya sos parte de la Academia!</h2>
-
-      {profile ? (
-        <>
-          <p className={css.text}>
-            <strong>{firstName}</strong>, tu perfil es{' '}
-            <strong className={css.accent}>{profile.name}</strong>.
-          </p>
-          <p className={css.text}>{profile.description}</p>
-
-          <div className={css.diplomaWrap}>
-            <img src={diplomaUrl} alt={`Diploma ${profile.name}`} className={css.diplomaBg} />
-            <div className={css.diplomaOverlay}>
-              <div className={css.diplomaName}>
-                {firstName} {lastName}
+  const renderResult = () => {
+    console.log('STONECAT_RENDER_RESULT', {
+      winningProfile,
+      submitState,
+      errorMessage,
+    });
+  
+    return (
+      <section className={css.screen}>
+        <div className={css.resultIcon}>✨</div>
+        <h2 className={css.resultTitle}>¡Ya sos parte de la Academia!</h2>
+  
+        {profile ? (
+          <>
+            <p className={css.text}>
+              <strong>{firstName}</strong>, tu perfil es{' '}
+              <strong className={css.accent}>{profile.name}</strong>.
+            </p>
+            <p className={css.text}>{profile.description}</p>
+  
+            <div className={css.diplomaWrap}>
+              <img src={diplomaUrl} alt={`Diploma ${profile.name}`} className={css.diplomaBg} />
+              <div className={css.diplomaOverlay}>
+                <div className={css.diplomaName}>
+                  {firstName} {lastName}
+                </div>
+                {catPhoto ? <img src={catPhoto} alt={primaryPetName} className={css.diplomaPhoto} /> : null}
+                <div className={css.diplomaCatName}>{petNamesText}</div>
               </div>
-              {catPhoto ? <img src={catPhoto} alt={primaryPetName} className={css.diplomaPhoto} /> : null}
-              <div className={css.diplomaCatName}>{petNamesText}</div>
             </div>
-          </div>
-
-          <div className={css.shareActions}>
-            <button type="button" className={`${css.button} ${css.primary}`} onClick={shareDiploma}>
-              📱 Compartir
+  
+            <div className={css.shareActions}>
+              <button type="button" className={`${css.button} ${css.primary}`} onClick={shareDiploma}>
+                📱 Compartir
+              </button>
+              <button type="button" className={`${css.button} ${css.secondary}`} onClick={downloadDiploma}>
+                Descargar
+              </button>
+              <button type="button" className={`${css.button} ${css.ghost}`} onClick={reset}>
+                🔄 Reiniciar
+              </button>
+            </div>
+  
+            <p className={css.successText}>🎁 Revisá tu mail: diploma + tips personalizados según tu perfil.</p>
+  
+            {submitState === 'loading' ? (
+              <p className={css.text}>Enviando tus datos...</p>
+            ) : null}
+  
+            {submitState === 'success' ? (
+              <p className={css.webhookOk}>✅ Datos enviados correctamente.</p>
+            ) : null}
+  
+            {submitState === 'error' && errorMessage ? <p className={css.error}>{errorMessage}</p> : null}
+          </>
+        ) : (
+          <>
+            <p className={css.error}>No pudimos calcular el resultado. Volvé a intentar.</p>
+            <button type="button" className={`${css.button} ${css.primary}`} onClick={reset}>
+              Reiniciar
             </button>
-            <button type="button" className={`${css.button} ${css.secondary}`} onClick={downloadDiploma}>
-              Descargar
-            </button>
-            <button type="button" className={`${css.button} ${css.ghost}`} onClick={reset}>
-              🔄 Reiniciar
-            </button>
-          </div>
-
-          <p className={css.successText}>🎁 Revisá tu mail: diploma + tips personalizados según tu perfil.</p>
-
-          {submitState === 'success' ? (
-            <p className={css.webhookOk}>✅ Datos enviados correctamente.</p>
-          ) : null}
-
-          {submitState === 'error' && errorMessage ? <p className={css.error}>{errorMessage}</p> : null}
-        </>
-      ) : (
-        <>
-          <p className={css.error}>No pudimos calcular el resultado. Volvé a intentar.</p>
-          <button type="button" className={`${css.button} ${css.primary}`} onClick={reset}>
-            Reiniciar
-          </button>
-        </>
-      )}
-    </section>
-  );
+          </>
+        )}
+      </section>
+    );
+  };
 
   return (
     <main className={css.page}>
