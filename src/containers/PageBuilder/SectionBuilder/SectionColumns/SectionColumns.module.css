@@ -37,23 +37,22 @@
 .baseColumn > * h6 {
   color: var(--geoNavy);
   margin-top: 0;
+  margin-bottom: 12px;
 }
 
 /* Text inside cards */
 .baseColumn > * p {
   color: var(--geoSlate);
   line-height: 1.6;
+  margin-bottom: 20px;
 }
 
-/* Push CTA buttons to the bottom of each card */
-.baseColumn > * a[class*='ctaButton'] {
-  margin-top: auto;
-  align-self: flex-start;
-}
-
-/* If CTA class is not exposed as expected, this catches the last link in the card */
+/* Push CTA buttons to the bottom of each card and separate them from text */
+.baseColumn > * a[class*='ctaButton'],
 .baseColumn > * a:last-child {
   margin-top: auto;
+  padding-top: 11px;
+  padding-bottom: 11px;
   align-self: flex-start;
 }
 
