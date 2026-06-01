@@ -173,3 +173,119 @@
     }
   }
 }
+
+/* ============================================================
+   GeoPetShop V3 - Circular category carousel
+   Applies only to landing-page-v3 section with anchor ID v3-categorias
+   ============================================================ */
+
+#v3-categorias .carouselContainer {
+  padding-top: 40px;
+  justify-content: center;
+}
+
+#v3-categorias .baseCarousel,
+#v3-categorias .oneColumn,
+#v3-categorias .twoColumns,
+#v3-categorias .threeColumns,
+#v3-categorias .fourColumns {
+  justify-content: flex-start;
+  padding-bottom: 8px;
+}
+
+#v3-categorias .block {
+  position: relative;
+  width: 150px;
+  min-height: 190px;
+  padding: 0;
+  margin-right: 28px;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  text-align: center;
+  scroll-snap-align: center;
+  transform: translateX(24px);
+}
+
+#v3-categorias .block:last-of-type {
+  width: 150px;
+  padding-right: 24px;
+}
+
+#v3-categorias .block > * {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+#v3-categorias .block img {
+  width: 132px;
+  height: 132px;
+  object-fit: cover;
+  border-radius: 999px;
+  background: #eef2f7;
+  box-shadow: 0 8px 20px rgba(27, 79, 114, 0.1);
+  margin-bottom: 14px;
+}
+
+#v3-categorias .block h1,
+#v3-categorias .block h2,
+#v3-categorias .block h3,
+#v3-categorias .block h4,
+#v3-categorias .block h5,
+#v3-categorias .block h6 {
+  color: var(--geoNavy);
+  font-size: 16px;
+  line-height: 22px;
+  font-weight: var(--fontWeightSemiBold);
+  margin: 0;
+}
+
+/* For V3 categories, keep the visual clean like Chewy. */
+#v3-categorias .block p {
+  display: none;
+}
+
+/* If the block has a CTA link, make the whole category item clickable without showing a button. */
+#v3-categorias .block a[class*='ctaButton'],
+#v3-categorias .block a:last-child {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  margin: 0;
+  padding: 0;
+  z-index: 2;
+}
+
+@media (--viewportMedium) {
+  #v3-categorias .block {
+    width: 170px;
+    min-height: 210px;
+    margin-right: 32px;
+    transform: translateX(
+      max(calc((var(--carouselWidth) - var(--contentMaxWidthPages)) / 2 + 32px), 0px)
+    );
+  }
+
+  #v3-categorias .block:last-of-type {
+    width: 170px;
+    padding-right: 32px;
+  }
+
+  #v3-categorias .block img {
+    width: 152px;
+    height: 152px;
+  }
+
+  #v3-categorias .block h1,
+  #v3-categorias .block h2,
+  #v3-categorias .block h3,
+  #v3-categorias .block h4,
+  #v3-categorias .block h5,
+  #v3-categorias .block h6 {
+    font-size: 17px;
+    line-height: 23px;
+  }
+}
