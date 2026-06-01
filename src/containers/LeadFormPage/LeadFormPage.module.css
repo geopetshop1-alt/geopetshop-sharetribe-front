@@ -420,21 +420,24 @@
 
 .diplomaName {
   position: absolute;
-  top: 37.8%;
-  left: 8%;
-  right: 8%;
+  top: 29.2%;
+  left: 18%;
+  right: 18%;
   text-align: center;
   color: #1b2b5c;
-  font-size: clamp(18px, 5vw, 29px);
+  font-size: clamp(18px, 4.8vw, 30px);
   font-weight: 900;
-  line-height: 1.15;
+  line-height: 1.05;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .diplomaPhoto {
   position: absolute;
-  top: 47.5%;
+  top: 45.5%;
   left: 50%;
-  width: 34%;
+  width: 24%;
   aspect-ratio: 1 / 1;
   transform: translateX(-50%);
   border-radius: 999px;
@@ -445,14 +448,17 @@
 
 .diplomaCatName {
   position: absolute;
-  top: 72.2%;
-  left: 8%;
-  right: 8%;
+  top: 63%;
+  left: 18%;
+  right: 18%;
   text-align: center;
   color: #1b2b5c;
-  font-size: clamp(17px, 4.6vw, 27px);
+  font-size: clamp(16px, 4.5vw, 29px);
   font-weight: 900;
-  line-height: 1.15;
+  line-height: 1.05;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .shareActions {
