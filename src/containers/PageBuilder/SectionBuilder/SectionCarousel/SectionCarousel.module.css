@@ -4,7 +4,7 @@
   display: flex;
   align-items: center;
   scroll-behavior: smooth;
-  padding: 64px 0 0 0;
+  padding: 40px 0 0 0;
 
   &:hover .carouselArrows {
     opacity: 1;
@@ -39,17 +39,18 @@
   border-radius: 100%;
   border: none;
 
-  background-color: lightgrey;
-  opacity: 0.9;
+  background-color: var(--colorWhite);
+  opacity: 0.95;
   font-size: 30px;
-  color: black;
+  color: var(--geoNavy);
+  box-shadow: 0 8px 24px rgba(27, 79, 114, 0.16);
   transition: all ease-in-out 100ms;
 
   &:hover {
     opacity: 1;
     cursor: pointer;
-    background: black;
-    color: white;
+    background: var(--geoNavy);
+    color: var(--colorWhite);
   }
 }
 
@@ -60,6 +61,7 @@
 .carouselArrowNext {
   right: 48px;
 }
+
 .notEnoughBlocks {
   @media (--viewportMedium) {
     display: none;
@@ -70,7 +72,7 @@
   display: flex;
   flex-wrap: nowrap;
   width: var(--carouselWidth);
-  padding-bottom: 24px;
+  padding-bottom: 32px;
 
   overflow-x: auto;
   -ms-overflow-style: none;
@@ -100,39 +102,84 @@
 
   transform: translateX(32px);
 
+  /* GeoPetShop card styling */
+  display: flex;
+  flex-direction: column;
+  min-height: 210px;
+  padding: 24px;
+  background: var(--colorWhite);
+  border: 1px solid var(--geoBorder);
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(27, 79, 114, 0.08);
+
   &:last-of-type {
-    padding-right: 32px;
+    padding-right: 24px;
     /* 32px (padding-right above) */
     width: calc(min(var(--contentMaxWidthPages), var(--carouselWidth)) - 32px);
   }
 
   @media (--viewportMedium) {
     margin-right: 32px;
+    padding: 24px;
   }
 
   @media (min-width: 1200px) {
-    /* Offset the start of the carousel so it follows the global grid layout (e.g. (1400 - 1200) / 2 = 100px) */
-    /* Removing this uses the full page width for the slider pane */
+    /* Offset the start of the carousel so it follows the global grid layout */
     transform: translateX(
       max(calc((var(--carouselWidth) - var(--contentMaxWidthPages)) / 2 + 32px), 0px)
     );
 
     &:last-of-type {
-      padding-right: 32px;
-      width: calc(
-        min(var(--contentMaxWidthPages), var(--carouselWidth)) - 32px
-      ); /* 32px (padding-right above) */
+      padding-right: 24px;
+      width: calc(min(var(--contentMaxWidthPages), var(--carouselWidth)) - 32px);
     }
   }
 }
 
+/* Make possible inner wrappers stretch */
+.block > * {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+/* Titles inside carousel cards */
+.block h1,
+.block h2,
+.block h3,
+.block h4,
+.block h5,
+.block h6 {
+  color: var(--geoNavy);
+  margin-top: 0;
+  margin-bottom: 12px;
+}
+
+/* Text inside carousel cards */
+.block p {
+  color: var(--geoSlate);
+  line-height: 1.6;
+  margin-bottom: 20px;
+}
+
+/* Align carousel/card buttons */
+.block a[class*='ctaButton'],
+.block a:last-child {
+  margin-top: auto;
+  align-self: flex-start;
+}
+
+/* Keep images tidy if added later from Console */
+.block img {
+  border-radius: 12px;
+  overflow: hidden;
+}
+
 .oneColumn .block {
   @media (--viewportMedium) {
-    /* 64px (horizontal layout paddings) */
     width: calc(min(var(--contentMaxWidthPages), var(--carouselWidth)) - 64px);
 
     &:last-of-type {
-      /* 32px (padding-right) */
       width: calc(min(var(--contentMaxWidthPages), var(--carouselWidth)) - 32px);
     }
   }
@@ -140,11 +187,9 @@
 
 .twoColumns .block {
   @media (--viewportMedium) {
-    /* 64px (horizontal layout paddings) - 32px (one gutter á 32px) / 2 (number of columns) */
     width: calc((min(var(--contentMaxWidthPages), var(--carouselWidth)) - 64px - 32px) / 2);
 
     &:last-of-type {
-      /* 32px (padding-right above) / 2 (number of columns) */
       width: calc((min(var(--contentMaxWidthPages), var(--carouselWidth)) - 32px) / 2);
     }
   }
@@ -152,11 +197,9 @@
 
 .threeColumns .block {
   @media (--viewportMedium) {
-    /* 64px (horizontal layout paddings) - 32px (two gutters á 32px) / 3 (number of columns) */
     width: calc((min(var(--contentMaxWidthPages), var(--carouselWidth)) - 64px - 64px) / 3);
 
     &:last-of-type {
-      /* 32px (padding-right above) / 3 (number of columns) */
       width: calc((min(var(--contentMaxWidthPages), var(--carouselWidth)) - 32px) / 3);
     }
   }
@@ -164,11 +207,9 @@
 
 .fourColumns .block {
   @media (--viewportMedium) {
-    /* 64px (horizontal layout paddings) - 96px (three gutters á 32px) / 4 (number of columns) */
     width: calc((min(var(--contentMaxWidthPages), var(--carouselWidth)) - 64px - 96px) / 4);
 
     &:last-of-type {
-      /* 32px (padding-right above) / 4 (number of columns) */
       width: calc((min(var(--contentMaxWidthPages), var(--carouselWidth)) - 32px) / 4);
     }
   }
