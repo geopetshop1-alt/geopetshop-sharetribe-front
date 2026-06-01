@@ -412,70 +412,68 @@ const LeadFormPage = () => {
     reader.readAsDataURL(file);
   };
 
-  const answerQuiz = (questionIndex, profile) => {
+  const answerQuiz = (questionIndex, profileAnswer) => {
     const nextAnswers = [...quizAnswers];
-    nextAnswers[questionIndex] = profile;
+    nextAnswers[questionIndex] = profileAnswer;
     setQuizAnswers(nextAnswers);
-
+  
     setTimeout(() => {
       if (questionIndex < QUIZ_QUESTIONS.length - 1) {
         goToStep(4 + questionIndex + 1);
-      } else {
-        goToStep(8);
-        setTimeout(() => submitAndShowResult(nextAnswers), 900);
+        return;
       }
+  
+      const winner = getWinnerProfile(nextAnswers);
+      setWinningProfile(winner);
+      setSubmitState('loading');
+      goToStep(9);
+  
+      submitRegistrationToN8n(nextAnswers, winner);
     }, 180);
   };
 
-  const submitAndShowResult = async finalAnswers => {
-    const winner = getWinnerProfile(finalAnswers);
-    setWinningProfile(winner);
+  const submitRegistrationToN8n = async (finalAnswers, winner) => {
+  if (!WEBHOOK_URL) {
+    setSubmitState('error');
+    setErrorMessage('No está configurado el webhook del formulario.');
+    return;
+  }
 
-    if (!WEBHOOK_URL) {
-      setSubmitState('error');
-      setErrorMessage('No está configurado el webhook del formulario.');
-      goToStep(9);
-      return;
-    }
+  const tallyPayload = buildTallyCompatiblePayload({
+    firstName,
+    lastName,
+    email,
+    phone,
+    quantity,
+    pets,
+    saleAfuera,
+    convive,
+    winningProfile: winner,
+    quizAnswers: finalAnswers,
+  });
 
-    const tallyPayload = buildTallyCompatiblePayload({
-      firstName,
-      lastName,
-      email,
-      phone,
-      quantity,
-      pets,
-      saleAfuera,
-      convive,
-      winningProfile: winner,
-      quizAnswers: finalAnswers,
+  try {
+    const response = await fetch(WEBHOOK_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(tallyPayload),
     });
 
-    try {
-      setSubmitState('loading');
-
-      const response = await fetch(WEBHOOK_URL, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(tallyPayload),
-      });
-
-      if (!response.ok) {
-        throw new Error(`Webhook error ${response.status}`);
-      }
-
-      setSubmitState('success');
-    } catch (error) {
-      setSubmitState('error');
-      setErrorMessage(
-        'El registro se completó en pantalla, pero no pudimos confirmar el envío a n8n. Si el contacto no aparece en Clientify, revisamos CORS o el webhook.'
-      );
-    } finally {
-      goToStep(9);
+    if (!response.ok) {
+      throw new Error(`Webhook error ${response.status}`);
     }
-  };
+
+    setSubmitState('success');
+    setErrorMessage('');
+  } catch (error) {
+    setSubmitState('error');
+    setErrorMessage(
+      'Te mostramos el resultado, pero no pudimos confirmar el envío del registro. Revisamos n8n si no aparece en Clientify.'
+    );
+  }
+};
 
   const reset = () => {
     setStep(0);
@@ -682,17 +680,21 @@ const makeFinalDiplomaBlob = async () => {
     );
   };
 
-const renderPortada = () => (
-  <section className={`${css.screen} ${css.coverScreen}`}>
-    <button type="button" className={css.coverButton} onClick={() => goToStep(1)}>
+  const renderPortada = () => (
+    <section className={`${css.screen} ${css.coverScreen}`}>
       <img
         src={`${ASSET_BASE}/portada-mvp.webp`}
-        alt="Academia Stonecat - Empezar inscripción"
+        alt="Academia Stonecat - Inscripción"
         className={css.coverImage}
       />
-    </button>
-  </section>
-);
+  
+      <div className={css.coverCtaWrap}>
+        <button type="button" className={`${css.button} ${css.primary}`} onClick={() => goToStep(1)}>
+          Empezar inscripción 🚀
+        </button>
+      </div>
+    </section>
+  );
 
   const renderStep1 = () => (
     <section className={css.screen}>
