@@ -533,3 +533,12 @@
     grid-column: 1 / -1;
   }
 }
+
+.coverCtaWrap {
+  padding: 20px 24px 32px;
+  background: #ffffff;
+}
+
+.coverCtaWrap .button {
+  width: 100%;
+}
