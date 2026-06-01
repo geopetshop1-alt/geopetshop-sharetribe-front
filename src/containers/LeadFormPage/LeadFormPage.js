@@ -555,22 +555,17 @@ const LeadFormPage = () => {
     );
   };
 
-  const renderPortada = () => (
-    <section className={`${css.screen} ${css.coverScreen}`}>
-      <img src={`${ASSET_BASE}/stonecat-logo.jpg`} alt="Academia Stonecat" className={css.coverLogo} />
-      <img src={`${ASSET_BASE}/portada-mvp.webp`} alt="Academia Stonecat" className={css.coverImage} />
-      <div className={css.coverContent}>
-        <p className={css.label}>Calendario de vacunación</p>
-        <h1>Registrate para recibir avisos y descubrir tu perfil Karen</h1>
-        <p>
-          Cargá los datos de tus gatos, respondé un quiz rápido y obtené tu diploma de la Academia Stonecat.
-        </p>
-        <button type="button" className={`${css.button} ${css.primary}`} onClick={() => goToStep(1)}>
-          Empezar 🐾
-        </button>
-      </div>
-    </section>
-  );
+const renderPortada = () => (
+  <section className={`${css.screen} ${css.coverScreen}`}>
+    <button type="button" className={css.coverButton} onClick={() => goToStep(1)}>
+      <img
+        src={`${ASSET_BASE}/portada-mvp.webp`}
+        alt="Academia Stonecat - Empezar inscripción"
+        className={css.coverImage}
+      />
+    </button>
+  </section>
+);
 
   const renderStep1 = () => (
     <section className={css.screen}>
