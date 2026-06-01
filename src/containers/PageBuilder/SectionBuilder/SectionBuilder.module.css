@@ -1,13 +1,15 @@
 @import '../../../styles/customMediaQueries.css';
 
 /* Styles for custom sections: classes shared by <SectionColumns>, <SectionArticle>, <SectionFeatures>, <SectionCarousel>, <SectionHero> etc. */
+
 .sectionDetails {
   max-width: var(--contentMaxWidthPages);
   display: grid;
   justify-content: start;
   margin: 0 auto;
-  padding: 0 32px;
+  padding: 0 24px;
   position: relative;
+  z-index: 1;
 
   & h1 + p,
   & h1 + a,
@@ -101,14 +103,23 @@
 
   @media (--viewportMedium) {
     justify-content: center;
+    padding: 0 32px;
   }
 }
 
 .blockContainer {
-  padding: 64px 32px 0 32px;
+  padding: 40px 24px 0 24px;
 
   &:first-child {
-    padding: 0 32px;
+    padding: 0 24px;
+  }
+
+  @media (--viewportMedium) {
+    padding: 56px 32px 0 32px;
+
+    &:first-child {
+      padding: 0 32px;
+    }
   }
 }
 
@@ -125,47 +136,99 @@
 .title {
   composes: align;
   max-width: 30ch;
+  color: var(--geoNavy);
+  letter-spacing: -0.03em;
 }
 
 .description {
   composes: align;
   max-width: 65ch;
+  color: var(--geoSlate);
+  line-height: 1.65;
 }
 
 .ctaButton {
   composes: align;
-  display: inline-block;
-  padding: 8px 20px;
-  font-size: 15px;
-  background-color: var(--marketplaceColor);
-  border-radius: 4px;
-  color: white;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
+  padding: 11px 22px;
+  font-size: 14px;
+  line-height: 18px;
+  background-color: var(--geoOrange);
+  border: 1px solid var(--geoOrange);
+  border-radius: 8px;
+  color: var(--colorWhite);
   text-decoration: none;
-  box-shadow: 0 8px 16px 0 rgb(0 0 0 / 20%);
-  font-weight: 500;
+  box-shadow: 0 8px 18px rgba(232, 137, 26, 0.28);
+  font-weight: var(--fontWeightSemiBold);
   margin-top: 24px;
+  transition: all 0.16s ease-in-out;
 
   &:hover {
     text-decoration: none;
-    background-color: var(--marketplaceColorDark);
+    background-color: var(--geoOrangeDark);
+    border-color: var(--geoOrangeDark);
+    color: var(--colorWhite);
+    box-shadow: 0 10px 22px rgba(232, 137, 26, 0.34);
+    transform: translateY(-1px);
+  }
+
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 4px rgba(232, 137, 26, 0.2);
   }
 }
 
 .defaultLink {
   display: inline;
-  color: var(--marketplaceColor);
+  color: var(--geoNavy);
+  font-weight: var(--fontWeightSemiBold);
 
   /* fallback option */
   word-break: break-all;
   /* use break-word if available */
   word-break: break-word;
   hyphens: auto;
+
+  &:hover {
+    color: var(--geoOrange);
+  }
 }
 
 /**
- * Theme: dark 
+ * Theme: dark
  * These styles are at the bottom of the file so that they overwrite rules for default "light" theme.
  */
+
+.darkTheme {
+  position: relative;
+}
+
+/* This improves readability over background images configured in Console. */
+.darkTheme::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(
+      90deg,
+      rgba(18, 59, 87, 0.66) 0%,
+      rgba(27, 79, 114, 0.46) 45%,
+      rgba(18, 59, 87, 0.28) 100%
+    ),
+    rgba(0, 0, 0, 0.16);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Keep content above the overlay. */
+.darkTheme > * {
+  position: relative;
+  z-index: 1;
+}
+
 .darkTheme h1,
 .darkTheme h2,
 .darkTheme h3,
@@ -173,58 +236,63 @@
 .darkTheme h5,
 .darkTheme h6 {
   color: var(--colorWhite);
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.35);
 
   &::selection {
-    background-color: cyan;
-    color: unset;
+    background-color: var(--geoOrange);
+    color: var(--colorWhite);
   }
 }
 
 .darkTheme p,
 .darkTheme li,
 .darkTheme blockquote {
-  color: rgba(255, 255, 255, 0.85);
+  color: rgba(255, 255, 255, 0.9);
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.28);
 
   &::selection {
-    background-color: cyan;
-    color: unset;
+    background-color: var(--geoOrange);
+    color: var(--colorWhite);
   }
 }
 
 /* link on dark theme */
-
-/* ************************************ */
 .darkTheme .defaultLink {
-  color: white;
+  color: var(--colorWhite);
   text-decoration: underline;
 
   &:hover {
     text-decoration: none;
-    color: var(--marketplaceColorLight);
+    color: var(--geoOrange);
   }
 }
 
 /* button on dark theme */
 .darkTheme .ctaButton {
-  border: 1px solid var(--marketplaceColorDark);
+  background-color: var(--geoOrange);
+  border: 1px solid var(--geoOrange);
+  color: var(--colorWhite);
   text-decoration: none;
+  text-shadow: none;
 
   &:hover {
-    color: white;
+    background-color: var(--geoOrangeDark);
+    border-color: var(--geoOrangeDark);
+    color: var(--colorWhite);
   }
 }
 
 .darkTheme hr {
-  border-color: var(--colorGrey700);
+  border-color: rgba(255, 255, 255, 0.28);
 }
 
 /* dark inline code */
 .darkTheme code {
-  background-color: var(--colorGrey700);
-  color: var(--colorGrey100);
+  background-color: rgba(255, 255, 255, 0.16);
+  color: var(--colorWhite);
 }
 
 /* dark code block */
 .darkTheme pre {
-  background-color: var(--colorGrey700);
+  background-color: rgba(18, 59, 87, 0.9);
 }
