@@ -289,3 +289,38 @@
     line-height: 23px;
   }
 }
+
+/* Force V3 category images to circular format */
+#v3-categorias .block {
+  width: 170px !important;
+  min-height: 210px !important;
+  text-align: center !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+#v3-categorias .block img,
+#v3-categorias .block picture,
+#v3-categorias .block [class*='image'],
+#v3-categorias .block [class*='Image'],
+#v3-categorias .block [class*='aspectRatio'],
+#v3-categorias .block [class*='AspectRatio'] {
+  width: 152px !important;
+  height: 152px !important;
+  max-width: 152px !important;
+  max-height: 152px !important;
+  border-radius: 999px !important;
+  object-fit: cover !important;
+  overflow: hidden !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+#v3-categorias .block img {
+  display: block !important;
+}
+
+#v3-categorias .block p {
+  display: none !important;
+}
