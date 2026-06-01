@@ -420,7 +420,7 @@
 
 .diplomaName {
   position: absolute;
-  top: 33.2%;
+  top: 37.2%;
   left: 18%;
   right: 18%;
   height: 6.5%;
@@ -436,7 +436,7 @@
 
 .diplomaPhoto {
   position: absolute;
-  top: 43.5%;
+  top: 44.5%;
   left: 50%;
   width: 24%;
   aspect-ratio: 1 / 1;
@@ -449,7 +449,7 @@
 
 .diplomaCatName {
   position: absolute;
-  top: 69.5%;
+  top: 68.2%;
   left: 18%;
   right: 18%;
   height: 6.5%;
