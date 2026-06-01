@@ -41,3 +41,88 @@
     min-height: 62vh;
   }
 }
+
+/* ============================================================
+   GeoPetShop V3 - Rounded promo banners
+   Applies only to landing-page-v3 sections with anchor IDs:
+   v3-avisos and v3-negocios
+   ============================================================ */
+
+#v3-avisos,
+#v3-negocios {
+  width: calc(100% - 32px);
+  max-width: 1200px;
+  min-height: 260px;
+  margin: 56px auto;
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 10px 28px rgba(27, 79, 114, 0.1);
+}
+
+#v3-avisos {
+  background-color: #eaf6ff;
+  background-position: center right;
+}
+
+#v3-negocios {
+  background-position: center center;
+}
+
+/* Make banner content feel more like a promo, less like a full-page hero */
+#v3-avisos header,
+#v3-negocios header {
+  width: 100%;
+  max-width: 620px;
+  padding-top: 36px;
+  padding-bottom: 36px;
+}
+
+#v3-avisos header {
+  margin-left: 0;
+  margin-right: auto;
+}
+
+#v3-negocios header {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Light banner text */
+#v3-avisos h1,
+#v3-avisos h2 {
+  color: var(--geoNavy);
+  text-shadow: none;
+}
+
+#v3-avisos p {
+  color: var(--geoSlate);
+  text-shadow: none;
+}
+
+/* Dark/image banner text */
+#v3-negocios h1,
+#v3-negocios h2 {
+  color: var(--colorWhite);
+  text-shadow: 0 2px 14px rgba(0, 0, 0, 0.46);
+}
+
+#v3-negocios p {
+  color: rgba(255, 255, 255, 0.94);
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.38);
+}
+
+@media (min-width: 768px) {
+  #v3-avisos,
+  #v3-negocios {
+    width: calc(100% - 64px);
+    min-height: 300px;
+    margin: 64px auto;
+    border-radius: 20px;
+  }
+
+  #v3-avisos header,
+  #v3-negocios header {
+    padding-top: 48px;
+    padding-bottom: 48px;
+  }
+}
