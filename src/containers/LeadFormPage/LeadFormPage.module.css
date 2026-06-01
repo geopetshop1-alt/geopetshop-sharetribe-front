@@ -1,0 +1,285 @@
+.page {
+  min-height: 100vh;
+  background: #f5f8fc;
+  color: #123b57;
+}
+
+.hero {
+  width: calc(100% - 32px);
+  max-width: 1180px;
+  margin: 32px auto 0 auto;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+  align-items: center;
+  padding: 32px;
+  border-radius: 28px;
+  background: linear-gradient(135deg, #eaf6ff 0%, #ffffff 100%);
+  box-shadow: 0 12px 36px rgba(27, 79, 114, 0.1);
+  overflow: hidden;
+}
+
+.heroContent {
+  max-width: 580px;
+}
+
+.partnerLogo {
+  width: 88px;
+  height: auto;
+  object-fit: contain;
+  margin-bottom: 20px;
+}
+
+.eyebrow {
+  margin: 0 0 12px 0;
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 700;
+  color: #e8891a;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.hero h1 {
+  margin: 0;
+  font-size: 38px;
+  line-height: 44px;
+  letter-spacing: -0.04em;
+  color: #123b57;
+}
+
+.heroText {
+  margin: 20px 0 0 0;
+  color: #62748a;
+  font-size: 18px;
+  line-height: 30px;
+}
+
+.heroImageWrap {
+  width: 100%;
+  border-radius: 24px;
+  overflow: hidden;
+  background: #dceefc;
+}
+
+.heroImage {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.formSection {
+  width: calc(100% - 32px);
+  max-width: 920px;
+  margin: 48px auto 80px auto;
+}
+
+.formIntro {
+  text-align: center;
+  margin-bottom: 28px;
+}
+
+.formIntro h2 {
+  margin: 0;
+  color: #123b57;
+  font-size: 32px;
+  line-height: 40px;
+  letter-spacing: -0.03em;
+}
+
+.formIntro p {
+  margin: 12px auto 0 auto;
+  color: #62748a;
+  max-width: 620px;
+  line-height: 26px;
+}
+
+.form,
+.successCard {
+  background: #ffffff;
+  border: 1px solid #dfe8f1;
+  border-radius: 24px;
+  padding: 24px;
+  box-shadow: 0 12px 36px rgba(27, 79, 114, 0.08);
+}
+
+.grid2 {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 18px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  color: #123b57;
+  font-weight: 700;
+}
+
+.field span {
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.field input,
+.field select {
+  width: 100%;
+  min-height: 48px;
+  padding: 12px 14px;
+  border: 1px solid #cad8e5;
+  border-radius: 12px;
+  background: #ffffff;
+  color: #123b57;
+  font-size: 16px;
+  outline: none;
+}
+
+.field input:focus,
+.field select:focus {
+  border-color: #e8891a;
+  box-shadow: 0 0 0 4px rgba(232, 137, 26, 0.15);
+}
+
+.field select:disabled {
+  background: #f1f5f9;
+  color: #7b8ca1;
+}
+
+.petBox {
+  margin: 24px 0;
+  padding: 20px;
+  border-radius: 18px;
+  background: #f5f8fc;
+  border: 1px solid #dfe8f1;
+}
+
+.petBox h3 {
+  margin: 0 0 18px 0;
+  color: #123b57;
+}
+
+.petRow {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 18px;
+  padding: 18px 0;
+  border-top: 1px solid #dfe8f1;
+}
+
+.petRow:first-of-type {
+  border-top: none;
+  padding-top: 0;
+}
+
+.checkbox {
+  display: flex;
+  gap: 12px;
+  margin: 24px 0;
+  color: #62748a;
+  line-height: 24px;
+}
+
+.checkbox input {
+  margin-top: 5px;
+}
+
+.primaryButton,
+.secondaryButton {
+  min-height: 48px;
+  border-radius: 12px;
+  padding: 12px 22px;
+  font-size: 16px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.16s ease-in-out;
+}
+
+.primaryButton {
+  border: 1px solid #e8891a;
+  background: #e8891a;
+  color: #ffffff;
+  box-shadow: 0 10px 22px rgba(232, 137, 26, 0.28);
+}
+
+.primaryButton:hover {
+  background: #d77710;
+  border-color: #d77710;
+  transform: translateY(-1px);
+}
+
+.primaryButton:disabled {
+  opacity: 0.7;
+  cursor: progress;
+  transform: none;
+}
+
+.secondaryButton {
+  border: 1px solid #cad8e5;
+  background: #ffffff;
+  color: #123b57;
+}
+
+.error {
+  margin: 0 0 18px 0;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: #fff2f2;
+  color: #b42318;
+  font-weight: 700;
+}
+
+.successCard {
+  text-align: center;
+}
+
+.successCard h2 {
+  margin: 0;
+  color: #123b57;
+  font-size: 32px;
+  line-height: 40px;
+}
+
+.successCard p {
+  color: #62748a;
+  line-height: 26px;
+}
+
+.diploma {
+  width: 100%;
+  max-width: 620px;
+  margin: 24px auto;
+  display: block;
+  border-radius: 18px;
+  box-shadow: 0 12px 36px rgba(27, 79, 114, 0.12);
+}
+
+.actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+@media (min-width: 768px) {
+  .hero {
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+    padding: 48px;
+    margin-top: 48px;
+  }
+
+  .hero h1 {
+    font-size: 52px;
+    line-height: 58px;
+  }
+
+  .form,
+  .successCard {
+    padding: 36px;
+  }
+
+  .grid2,
+  .petRow {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
