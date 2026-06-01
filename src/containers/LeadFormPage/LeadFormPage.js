@@ -123,6 +123,44 @@ const emptyPet = () => ({
 
 const todayISO = () => new Date().toISOString().slice(0, 10);
 
+const normalizeArgentinaPhone = value => {
+  let digits = String(value || '').replace(/\D/g, '');
+
+  if (!digits) return '';
+
+  // 00 54...
+  if (digits.startsWith('0054')) {
+    digits = digits.slice(2);
+  }
+
+  // +54...
+  if (digits.startsWith('54')) {
+    if (digits.startsWith('549')) return digits;
+    return `549${digits.slice(2)}`;
+  }
+
+  // Quitar 0 inicial de característica: 011..., 0341...
+  if (digits.startsWith('0')) {
+    digits = digits.slice(1);
+  }
+
+  // Quitar 15 después de característica si viene formato antiguo:
+  // 11 15 1234 5678 -> 11 1234 5678
+  if (digits.length >= 12 && digits.slice(2, 4) === '15') {
+    digits = `${digits.slice(0, 2)}${digits.slice(4)}`;
+  }
+
+  // Celular argentino final para WhatsApp: 549 + área + número
+  return `549${digits}`;
+};
+
+const isValidArgentinaMobile = value => {
+  const normalized = normalizeArgentinaPhone(value);
+
+  // 54 + 9 + 10 dígitos aprox. Para Argentina móvil.
+  return /^549\d{10}$/.test(normalized);
+};
+
 const getQuantityOptionId = quantity => {
   const option = QUANTITY_OPTIONS.find(o => o.text === String(quantity));
   return option ? option.id : QUANTITY_OPTIONS[0].id;
@@ -361,6 +399,9 @@ const LeadFormPage = () => {
     if (!lastName.trim()) return 'Completá tu apellido.';
     if (!email.trim()) return 'Completá tu email.';
     if (!phone.trim()) return 'Completá tu celular.';
+    if (!isValidArgentinaMobile(phone)) {
+      return 'Ingresá un celular argentino válido. Ejemplo: 11 7016 7380 o +54 9 11 7016 7380.';
+    }
     return null;
   };
 
@@ -424,15 +465,23 @@ const LeadFormPage = () => {
       }
   
       const winner = getWinnerProfile(nextAnswers);
+  
+      // Primero mostramos resultado, siempre.
       setWinningProfile(winner);
       setSubmitState('loading');
-      goToStep(9);
+      setErrorMessage('');
+      setStep(9);
   
+      if (typeof window !== 'undefined') {
+        window.scrollTo(0, 0);
+      }
+  
+      // Después enviamos a n8n en segundo plano.
       submitRegistrationToN8n(nextAnswers, winner);
     }, 180);
   };
 
-  const submitRegistrationToN8n = async (finalAnswers, winner) => {
+const submitRegistrationToN8n = async (finalAnswers, winner) => {
   if (!WEBHOOK_URL) {
     setSubmitState('error');
     setErrorMessage('No está configurado el webhook del formulario.');
@@ -443,7 +492,7 @@ const LeadFormPage = () => {
     firstName,
     lastName,
     email,
-    phone,
+    phone: normalizeArgentinaPhone(phone),
     quantity,
     pets,
     saleAfuera,
