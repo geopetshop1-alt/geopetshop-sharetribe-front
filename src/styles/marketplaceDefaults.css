@@ -1,5 +1,6 @@
 @import '../assets/sanitize.css';
 @import './customMediaQueries.css';
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700;800;900&display=swap');
 
 /* ================ Custom Properties aka CSS variables ================ */
 
@@ -56,17 +57,17 @@
   * In the future, we are planning to bring more --marketplace* CSS Properties
   * from hosted assets, which means that they could be managed through Console.
   */
-  --marketplaceColor: #6938ef; /* hsl(256, 85%, 58%) */
-  --marketplaceColorLight: #4a12e2; /* hsl(256, 85%, 48%) */
-  --marketplaceColorDark: #8d68f3; /* hsl(256, 85%, 68% */
-
+  --marketplaceColor: var(--geoNavy);
+  --marketplaceColorLight: var(--geoNavyDark);
+  --marketplaceColorDark: #2A668E;
+  
   /** 
    * The fill color used by <PrimaryButton>
    * These might be overwritten by values from hosted assets
    */
-  --colorPrimaryButton: #138041;
-  --colorPrimaryButtonDark: #0d542a;
-  --colorPrimaryButtonLight: #1aad57;
+  --colorPrimaryButton: var(--geoOrange);
+  --colorPrimaryButtonDark: var(--geoOrangeDark);
+  --colorPrimaryButtonLight: #F2A13A;
 
   /** 
    * The fill color used by <SecondaryButton>
@@ -82,8 +83,21 @@
   --colorStatusActionNeeded: var(--colorAttentionDark);
   --colorStatusFinalState: var(--colorGrey600);
 
+  /* ================ GeoPetShop Brand Colors ================ */
+
+  --geoNavy: #1B4F72;
+  --geoNavyDark: #123B57;
+  --geoOrange: #E8891A;
+  --geoOrangeDark: #C97312;
+  --geoGreen: #2E8B57;
+  --geoCloud: #F7F9FC;
+  --geoSlate: #6B7A8D;
+  --geoBorder: #E4EAF2;  
+
+
+  
   /* ================ Font ================ */
-  --fontFamily: -apple-system, BlinkMacSystemFont, 'Inter', Helvetica, Arial, sans-serif,
+  --fontFamily: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Inter', Helvetica, Arial, sans-serif,
     'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
 
   --fontWeightRegular: 400;
@@ -135,8 +149,8 @@
 
   /* ================ Border radius ================ */
 
-  --borderRadius: 2px;
-  --borderRadiusMedium: 4px;
+  --borderRadius: 6px;
+  --borderRadiusMedium: 8px;
 
   /* ================ Transition styles ================ */
 
@@ -221,7 +235,7 @@ body {
   text-rendering: optimizeSpeed;
   font-optical-sizing: auto;
 
-  background-color: var(--colorGrey50);
+  background-color: var(--geoCloud);
 }
 
 ::selection {
@@ -522,8 +536,8 @@ select:hover {
 }
 select:focus {
   background-color: #fff;
-  border-color: #80bdff;
-  box-shadow: 0 0 0 0.2rem rgb(0 123 255 / 25%);
+  border-color: var(--geoNavy);
+  box-shadow: 0 0 0 0.2rem rgba(27, 79, 114, 0.14);
   transition: all ease-in-out 100ms;
 }
 select:disabled {
@@ -574,8 +588,8 @@ textarea:hover {
 input:focus,
 textarea:focus {
   background-color: #fff;
-  border-color: #80bdff;
-  box-shadow: 0 0 0 0.2rem rgb(0 123 255 / 25%);
+  border-color: var(--geoNavy);
+  box-shadow: 0 0 0 0.2rem rgba(27, 79, 114, 0.14);
   transition: all ease-in-out 100ms;
 }
 input:disabled,
