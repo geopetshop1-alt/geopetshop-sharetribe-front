@@ -315,7 +315,16 @@ const LeadFormPage = () => {
   const maxBirthDate = useMemo(() => todayISO(), []);
   const progress = step === 0 ? 0 : Math.min(100, Math.round((step / 9) * 100));
 
-  const primaryPetName = pets[0]?.name || 'tu michi';
+  const petNames = pets
+  .map(pet => pet.name?.trim())
+  .filter(Boolean);
+
+  const primaryPetName = petNames[0] || 'tu michi';
+  
+  const petNamesText =
+    petNames.length > 1
+      ? petNames.join(', ')
+      : primaryPetName;
 
   const updateQuantity = value => {
     const nextQuantity = Number(value);
@@ -489,27 +498,145 @@ const LeadFormPage = () => {
   const diplomaFile = winningProfile ? DIPLOMAS[winningProfile] : null;
   const diplomaUrl = diplomaFile ? `${ASSET_BASE}/${diplomaFile}` : '';
 
-  const downloadDiploma = () => {
-    if (!diplomaUrl) return;
+  const loadImage = src =>
+  new Promise((resolve, reject) => {
+    const image = new Image();
+    image.crossOrigin = 'anonymous';
+    image.onload = () => resolve(image);
+    image.onerror = reject;
+    image.src = src;
+  });
 
-    const link = document.createElement('a');
-    link.href = diplomaUrl;
-    link.download = diplomaFile;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+const drawCoverImage = (ctx, image, x, y, width, height) => {
+  const imageRatio = image.width / image.height;
+  const targetRatio = width / height;
+
+  let sourceWidth = image.width;
+  let sourceHeight = image.height;
+  let sourceX = 0;
+  let sourceY = 0;
+
+  if (imageRatio > targetRatio) {
+    sourceWidth = image.height * targetRatio;
+    sourceX = (image.width - sourceWidth) / 2;
+  } else {
+    sourceHeight = image.width / targetRatio;
+    sourceY = (image.height - sourceHeight) / 2;
+  }
+
+  ctx.drawImage(
+    image,
+    sourceX,
+    sourceY,
+    sourceWidth,
+    sourceHeight,
+    x,
+    y,
+    width,
+    height
+  );
+};
+
+const fitText = (ctx, text, maxWidth, startFontSize, minFontSize, fontFamily) => {
+  let fontSize = startFontSize;
+  ctx.font = `900 ${fontSize}px ${fontFamily}`;
+
+  while (ctx.measureText(text).width > maxWidth && fontSize > minFontSize) {
+    fontSize -= 2;
+    ctx.font = `900 ${fontSize}px ${fontFamily}`;
+  }
+
+  return fontSize;
+};
+
+const makeFinalDiplomaBlob = async () => {
+    if (!profile || !diplomaUrl) return null;
+  
+    const diplomaImage = await loadImage(diplomaUrl);
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+  
+    canvas.width = diplomaImage.width;
+    canvas.height = diplomaImage.height;
+  
+    ctx.drawImage(diplomaImage, 0, 0, canvas.width, canvas.height);
+  
+    const fontFamily = 'Arial, Helvetica, sans-serif';
+  
+    const tutorName = `${firstName} ${lastName}`.trim();
+    const tutorMaxWidth = canvas.width * 0.58;
+    const tutorFontSize = fitText(ctx, tutorName, tutorMaxWidth, 72, 34, fontFamily);
+  
+    ctx.fillStyle = '#1b2b5c';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.font = `900 ${tutorFontSize}px ${fontFamily}`;
+    ctx.fillText(tutorName, canvas.width * 0.5, canvas.height * 0.292);
+  
+    if (catPhoto) {
+      const catImage = await loadImage(catPhoto);
+      const photoSize = canvas.width * 0.24;
+      const photoX = (canvas.width - photoSize) / 2;
+      const photoY = canvas.height * 0.455;
+  
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(
+        photoX + photoSize / 2,
+        photoY + photoSize / 2,
+        photoSize / 2,
+        0,
+        Math.PI * 2
+      );
+      ctx.closePath();
+      ctx.clip();
+      drawCoverImage(ctx, catImage, photoX, photoY, photoSize, photoSize);
+      ctx.restore();
+  
+      ctx.beginPath();
+      ctx.arc(
+        photoX + photoSize / 2,
+        photoY + photoSize / 2,
+        photoSize / 2,
+        0,
+        Math.PI * 2
+      );
+      ctx.lineWidth = canvas.width * 0.012;
+      ctx.strokeStyle = '#d7b56d';
+      ctx.stroke();
+    }
+  
+    const petsMaxWidth = canvas.width * 0.58;
+    const petsFontSize = fitText(ctx, petNamesText, petsMaxWidth, 62, 26, fontFamily);
+  
+    ctx.fillStyle = '#1b2b5c';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.font = `900 ${petsFontSize}px ${fontFamily}`;
+    ctx.fillText(petNamesText, canvas.width * 0.5, canvas.height * 0.63);
+  
+    return new Promise(resolve => {
+      canvas.toBlob(blob => resolve(blob), 'image/png', 0.95);
+    });
   };
 
+  
   const shareDiploma = async () => {
-    if (!profile || !diplomaUrl) return;
-
+    if (!profile) return;
+  
     const shareText = `Ya soy parte de la Academia Stonecat. Mi perfil es ${profile.name}.`;
-
+    const blob = await makeFinalDiplomaBlob();
+  
+    if (!blob) {
+      await downloadDiploma();
+      return;
+    }
+  
+    const file = new File([blob], `diploma-stonecat-${primaryPetName}.png`, {
+      type: 'image/png',
+    });
+  
     try {
-      const response = await fetch(diplomaUrl);
-      const blob = await response.blob();
-      const file = new File([blob], diplomaFile, { type: blob.type || 'image/png' });
-
       if (navigator.canShare && navigator.canShare({ files: [file] })) {
         await navigator.share({
           title: 'Mi diploma Stonecat',
@@ -518,7 +645,7 @@ const LeadFormPage = () => {
         });
         return;
       }
-
+  
       if (navigator.share) {
         await navigator.share({
           title: 'Mi diploma Stonecat',
@@ -527,13 +654,13 @@ const LeadFormPage = () => {
         });
         return;
       }
-
-      downloadDiploma();
+  
+      await downloadDiploma();
     } catch (error) {
-      downloadDiploma();
+      await downloadDiploma();
     }
   };
-
+  
   const renderHeader = () => {
     if (step === 0) return null;
 
@@ -691,7 +818,7 @@ const renderPortada = () => (
       </div>
 
       <div className={css.field}>
-        <span>📸 Subí una foto de tu michi principal (opcional)</span>
+        <span>📸 Subí una foto para el diploma (opcional)</span>
         <label className={css.photoUpload}>
           {catPhoto ? (
             <img src={catPhoto} alt="Preview del gato" className={css.photoPreview} />
@@ -788,7 +915,7 @@ const renderPortada = () => (
                 {firstName} {lastName}
               </div>
               {catPhoto ? <img src={catPhoto} alt={primaryPetName} className={css.diplomaPhoto} /> : null}
-              <div className={css.diplomaCatName}>{primaryPetName}</div>
+              <div className={css.diplomaCatName}>{petNamesText}</div>
             </div>
           </div>
 
