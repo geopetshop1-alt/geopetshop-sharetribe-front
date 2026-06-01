@@ -420,9 +420,10 @@
 
 .diplomaName {
   position: absolute;
-  top: 29.2%;
+  top: 33.2%;
   left: 18%;
   right: 18%;
+  height: 6.5%;
   text-align: center;
   color: #1b2b5c;
   font-size: clamp(18px, 4.8vw, 30px);
@@ -435,7 +436,7 @@
 
 .diplomaPhoto {
   position: absolute;
-  top: 45.5%;
+  top: 43.5%;
   left: 50%;
   width: 24%;
   aspect-ratio: 1 / 1;
@@ -448,9 +449,10 @@
 
 .diplomaCatName {
   position: absolute;
-  top: 63%;
+  top: 69.5%;
   left: 18%;
   right: 18%;
+  height: 6.5%;
   text-align: center;
   color: #1b2b5c;
   font-size: clamp(16px, 4.5vw, 29px);
