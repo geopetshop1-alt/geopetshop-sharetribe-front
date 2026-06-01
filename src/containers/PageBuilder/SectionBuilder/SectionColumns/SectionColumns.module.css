@@ -21,6 +21,13 @@
   box-shadow: 0 8px 24px rgba(27, 79, 114, 0.08);
 }
 
+/* Make inner wrappers stretch when the BlockBuilder adds them */
+.baseColumn > * > * {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
 /* Titles inside cards */
 .baseColumn > * h1,
 .baseColumn > * h2,
@@ -39,8 +46,13 @@
 }
 
 /* Push CTA buttons to the bottom of each card */
-.baseColumn > * a[class*='ctaButton'],
-.baseColumn > * a {
+.baseColumn > * a[class*='ctaButton'] {
+  margin-top: auto;
+  align-self: flex-start;
+}
+
+/* If CTA class is not exposed as expected, this catches the last link in the card */
+.baseColumn > * a:last-child {
   margin-top: auto;
   align-self: flex-start;
 }
