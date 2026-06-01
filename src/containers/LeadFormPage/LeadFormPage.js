@@ -639,13 +639,13 @@ const makeFinalDiplomaBlob = async () => {
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.font = `900 ${tutorFontSize}px ${fontFamily}`;
-    ctx.fillText(tutorName, canvas.width * 0.5, canvas.height * 0.292);
+    ctx.fillText(tutorName, canvas.width * 0.5, canvas.height * 0.355);
   
     if (catPhoto) {
       const catImage = await loadImage(catPhoto);
       const photoSize = canvas.width * 0.24;
       const photoX = (canvas.width - photoSize) / 2;
-      const photoY = canvas.height * 0.455;
+      const photoY = canvas.height * 0.435;
   
       ctx.save();
       ctx.beginPath();
@@ -681,7 +681,7 @@ const makeFinalDiplomaBlob = async () => {
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.font = `900 ${petsFontSize}px ${fontFamily}`;
-    ctx.fillText(petNamesText, canvas.width * 0.5, canvas.height * 0.63);
+    ctx.fillText(petNamesText, canvas.width * 0.5, canvas.height * 0.715);
   
     return new Promise(resolve => {
       canvas.toBlob(blob => resolve(blob), 'image/png', 0.95);
