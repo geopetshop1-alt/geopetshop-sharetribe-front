@@ -338,8 +338,8 @@ const LeadFormPage = () => {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState('');
-
+  const [phone, setPhone] = useState('+54 9 ');
+  
   const [quantity, setQuantity] = useState(1);
   const [pets, setPets] = useState([emptyPet()]);
   const [saleAfuera, setSaleAfuera] = useState('');
@@ -550,7 +550,7 @@ const submitRegistrationToN8n = async (finalAnswers, winner) => {
     setFirstName('');
     setLastName('');
     setEmail('');
-    setPhone('');
+    setPhone('+54 9 ');
     setQuantity(1);
     setPets([emptyPet()]);
     setSaleAfuera('');
@@ -639,13 +639,13 @@ const makeFinalDiplomaBlob = async () => {
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.font = `900 ${tutorFontSize}px ${fontFamily}`;
-    ctx.fillText(tutorName, canvas.width * 0.5, canvas.height * 0.355);
+    ctx.fillText(tutorName, canvas.width * 0.5, canvas.height * 0.392);
   
     if (catPhoto) {
       const catImage = await loadImage(catPhoto);
       const photoSize = canvas.width * 0.24;
       const photoX = (canvas.width - photoSize) / 2;
-      const photoY = canvas.height * 0.435;
+      const photoY = canvas.height * 0.445;
   
       ctx.save();
       ctx.beginPath();
@@ -681,7 +681,7 @@ const makeFinalDiplomaBlob = async () => {
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.font = `900 ${petsFontSize}px ${fontFamily}`;
-    ctx.fillText(petNamesText, canvas.width * 0.5, canvas.height * 0.715);
+    ctx.fillText(petNamesText, canvas.width * 0.5, canvas.height * 0.702);
   
     return new Promise(resolve => {
       canvas.toBlob(blob => resolve(blob), 'image/png', 0.95);
@@ -814,7 +814,7 @@ const makeFinalDiplomaBlob = async () => {
           type="tel"
           value={phone}
           onChange={e => setPhone(e.target.value)}
-          placeholder="+54 11 1234 5678"
+          placeholder="+54 9 11 1234 5678"
         />
       </label>
 
