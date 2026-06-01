@@ -6,11 +6,17 @@
   width: 100%;
   position: relative;
 
-  /* Hero specific */
-  min-height: 58vh;
+  /* Default Hero: for clean text sections like "Recibí avisos" */
+  min-height: 320px;
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+/* Only taller when Console is set to white text.
+   This usually means image/background hero sections. */
+.root[class*='darkTheme'] {
+  min-height: 58vh;
 }
 
 /* Only apply white text styling when Console is set to white text.
@@ -28,6 +34,10 @@
 
 @media (min-width: 768px) {
   .root {
+    min-height: 360px;
+  }
+
+  .root[class*='darkTheme'] {
     min-height: 62vh;
   }
 }
