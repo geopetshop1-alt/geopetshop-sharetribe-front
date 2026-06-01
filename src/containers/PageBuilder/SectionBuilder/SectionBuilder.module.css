@@ -1,15 +1,13 @@
 @import '../../../styles/customMediaQueries.css';
 
 /* Styles for custom sections: classes shared by <SectionColumns>, <SectionArticle>, <SectionFeatures>, <SectionCarousel>, <SectionHero> etc. */
-
 .sectionDetails {
   max-width: var(--contentMaxWidthPages);
   display: grid;
   justify-content: start;
   margin: 0 auto;
-  padding: 0 24px;
+  padding: 0 32px;
   position: relative;
-  z-index: 1;
 
   & h1 + p,
   & h1 + a,
@@ -103,23 +101,14 @@
 
   @media (--viewportMedium) {
     justify-content: center;
-    padding: 0 32px;
   }
 }
 
 .blockContainer {
-  padding: 40px 24px 0 24px;
+  padding: 56px 32px 0 32px;
 
   &:first-child {
-    padding: 0 24px;
-  }
-
-  @media (--viewportMedium) {
-    padding: 56px 32px 0 32px;
-
-    &:first-child {
-      padding: 0 32px;
-    }
+    padding: 0 32px;
   }
 }
 
@@ -135,7 +124,7 @@
 
 .title {
   composes: align;
-  max-width: 30ch;
+  max-width: 32ch;
   color: var(--geoNavy);
   letter-spacing: -0.03em;
 }
@@ -201,34 +190,6 @@
  * Theme: dark
  * These styles are at the bottom of the file so that they overwrite rules for default "light" theme.
  */
-
-.darkTheme {
-  position: relative;
-}
-
-/* This improves readability over background images configured in Console. */
-.darkTheme::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background:
-    linear-gradient(
-      90deg,
-      rgba(18, 59, 87, 0.66) 0%,
-      rgba(27, 79, 114, 0.46) 45%,
-      rgba(18, 59, 87, 0.28) 100%
-    ),
-    rgba(0, 0, 0, 0.16);
-  pointer-events: none;
-  z-index: 0;
-}
-
-/* Keep content above the overlay. */
-.darkTheme > * {
-  position: relative;
-  z-index: 1;
-}
-
 .darkTheme h1,
 .darkTheme h2,
 .darkTheme h3,
@@ -236,7 +197,7 @@
 .darkTheme h5,
 .darkTheme h6 {
   color: var(--colorWhite);
-  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.35);
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
 
   &::selection {
     background-color: var(--geoOrange);
