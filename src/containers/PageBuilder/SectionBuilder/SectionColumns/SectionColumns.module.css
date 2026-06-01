@@ -4,9 +4,51 @@
   max-width: var(--contentMaxWidthPages);
   display: grid;
   grid-template-columns: repeat(1, 1fr);
-  gap: 32px;
+  gap: 24px;
   margin: 0 auto;
-  padding: 32px;
+  padding: 32px 24px;
+}
+
+/* Each block inside a Columns section becomes a visual card */
+.baseColumn > * {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+  padding: 24px;
+  background: var(--colorWhite);
+  border: 1px solid var(--geoBorder);
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(27, 79, 114, 0.08);
+}
+
+/* Titles inside cards */
+.baseColumn > * h1,
+.baseColumn > * h2,
+.baseColumn > * h3,
+.baseColumn > * h4,
+.baseColumn > * h5,
+.baseColumn > * h6 {
+  color: var(--geoNavy);
+  margin-top: 0;
+}
+
+/* Text inside cards */
+.baseColumn > * p {
+  color: var(--geoSlate);
+  line-height: 1.6;
+}
+
+/* Push CTA buttons to the bottom of each card */
+.baseColumn > * a[class*='ctaButton'],
+.baseColumn > * a {
+  margin-top: auto;
+  align-self: flex-start;
+}
+
+/* Keep card images tidy if content blocks include images */
+.baseColumn > * img {
+  border-radius: 12px;
+  overflow: hidden;
 }
 
 .oneColumn {
@@ -15,24 +57,40 @@
 
 .twoColumns {
   composes: baseColumn;
+
   @media (--viewportMedium) {
-    grid-template-columns: repeat(2, calc((100% - 32px) / 2));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
+
 .threeColumns {
   composes: baseColumn;
+
   @media (--viewportMedium) {
-    grid-template-columns: repeat(3, calc((100% - 2 * 32px) / 3));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
+
 .fourColumns {
   composes: baseColumn;
+
   @media (--viewportMedium) {
-    grid-template-columns: repeat(4, calc((100% - 3 * 32px) / 4));
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }
 
 .noSidePaddings {
   padding-left: 0;
   padding-right: 0;
+}
+
+@media (--viewportMedium) {
+  .baseColumn {
+    gap: 32px;
+    padding: 40px 32px;
+  }
+
+  .baseColumn > * {
+    padding: 28px;
+  }
 }
