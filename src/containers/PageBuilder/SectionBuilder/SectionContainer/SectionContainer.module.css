@@ -6,6 +6,7 @@
   background-repeat: no-repeat;
   width: 100%;
   position: relative;
+  overflow: hidden;
 
   &:nth-of-type(odd) {
     background-color: var(--colorWhite);
@@ -13,15 +14,35 @@
 
   &[id] {
     scroll-margin-top: var(--topbarHeight);
+
     @media (--viewportMedium) {
       scroll-margin-top: var(--topbarHeightDesktop);
     }
   }
 }
 
+/* Overlay only when the section is configured with white text in Console.
+   SectionBuilder passes a generated darkTheme class into className. */
+.root[class*='darkTheme']::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background:
+    linear-gradient(
+      90deg,
+      rgba(18, 59, 87, 0.64) 0%,
+      rgba(27, 79, 114, 0.46) 45%,
+      rgba(18, 59, 87, 0.3) 100%
+    ),
+    rgba(0, 0, 0, 0.16);
+}
+
 .sectionContent {
   padding: 32px 0;
   position: relative;
+  z-index: 2;
   word-break: break-word;
 
   @media (--viewportMedium) {
@@ -35,4 +56,5 @@
   right: 0;
   bottom: 0;
   left: 0;
+  z-index: 0;
 }
