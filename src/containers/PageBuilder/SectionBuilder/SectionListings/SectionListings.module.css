@@ -332,3 +332,37 @@
     height: 152px;
   }
 }
+
+/* Force V3 featured listings to circular format */
+#v3-destacados .card {
+  width: 170px !important;
+  text-align: center !important;
+}
+
+#v3-destacados .carouselImageHoverEffect,
+#v3-destacados .card [class*='aspectRatio'],
+#v3-destacados .card [class*='AspectRatio'],
+#v3-destacados .card [class*='imageWrapper'],
+#v3-destacados .card [class*='ImageWrapper'] {
+  width: 152px !important;
+  height: 152px !important;
+  max-width: 152px !important;
+  max-height: 152px !important;
+  border-radius: 999px !important;
+  overflow: hidden !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  background: #eef2f7 !important;
+}
+
+#v3-destacados .card img,
+#v3-destacados .card picture {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  border-radius: 999px !important;
+}
+
+#v3-destacados .dynamicContainer {
+  height: 270px !important;
+}
