@@ -218,3 +218,117 @@
     text-decoration: none;
   }
 }
+
+/* ============================================================
+   GeoPetShop V3 - Featured stores as circular visual items
+   Applies only to landing-page-v3 section with anchor ID v3-destacados
+   ============================================================ */
+
+#v3-destacados .carouselContainer {
+  padding-top: 32px;
+}
+
+/* Hide section description and CTA only for this V3 section.
+   Keep the title visible. */
+#v3-destacados header p,
+#v3-destacados header a {
+  display: none;
+}
+
+/* Reduce the calculated carousel height for this editorial-style section */
+#v3-destacados .dynamicContainer {
+  height: 250px !important;
+}
+
+#v3-destacados .baseCarousel,
+#v3-destacados .threeColumns,
+#v3-destacados .fourColumns {
+  align-items: flex-start;
+  padding-top: 24px;
+  padding-bottom: 8px;
+}
+
+/* Make each listing behave like a circular featured item */
+#v3-destacados .card {
+  width: 150px;
+  margin-right: 28px;
+  text-align: center;
+  transform: translateX(24px);
+}
+
+/* Last item should keep same compact width */
+#v3-destacados .listItem:last-of-type > * {
+  width: 150px;
+  padding-right: 24px;
+}
+
+/* Circle image / placeholder */
+#v3-destacados .carouselImageHoverEffect {
+  width: 132px;
+  height: 132px;
+  margin: 0 auto 14px auto;
+  border-radius: 999px;
+  overflow: hidden;
+  background: #eef2f7;
+  box-shadow: 0 8px 20px rgba(27, 79, 114, 0.1);
+}
+
+/* Make sure inner media respects the circle */
+#v3-destacados .carouselImageHoverEffect img,
+#v3-destacados .carouselImageHoverEffect picture {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Listing text below the circle */
+#v3-destacados .card h1,
+#v3-destacados .card h2,
+#v3-destacados .card h3,
+#v3-destacados .card p {
+  text-align: center;
+}
+
+/* Avoid oversized text under circular items */
+#v3-destacados .card p {
+  margin-top: 4px;
+  color: var(--geoSlate);
+}
+
+/* Arrows styled like the rest of V3 */
+#v3-destacados .carouselArrowPrev,
+#v3-destacados .carouselArrowNext {
+  background-color: var(--colorWhite);
+  color: var(--geoNavy);
+  box-shadow: 0 8px 24px rgba(27, 79, 114, 0.16);
+}
+
+#v3-destacados .carouselArrowPrev:hover,
+#v3-destacados .carouselArrowNext:hover {
+  background-color: var(--geoNavy);
+  color: var(--colorWhite);
+}
+
+@media (--viewportMedium) {
+  #v3-destacados .dynamicContainer {
+    height: 270px !important;
+  }
+
+  #v3-destacados .card {
+    width: 170px;
+    margin-right: 32px;
+    transform: translateX(
+      max(calc((var(--carouselWidth) - var(--contentMaxWidthPages)) / 2 + 32px), 0px)
+    );
+  }
+
+  #v3-destacados .listItem:last-of-type > * {
+    width: 170px;
+    padding-right: 32px;
+  }
+
+  #v3-destacados .carouselImageHoverEffect {
+    width: 152px;
+    height: 152px;
+  }
+}
