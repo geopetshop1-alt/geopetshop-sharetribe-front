@@ -449,7 +449,7 @@
 
 .diplomaCatName {
   position: absolute;
-  top: 68.2%;
+  top: 70.2%;
   left: 18%;
   right: 18%;
   height: 6.5%;
@@ -461,6 +461,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  word-break: normal;
+  overflow-wrap: normal;
+  hyphens: none;
 }
 
 .shareActions {
