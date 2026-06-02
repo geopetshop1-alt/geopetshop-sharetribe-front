@@ -681,7 +681,7 @@ const makeFinalDiplomaBlob = async () => {
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.font = `900 ${petsFontSize}px ${fontFamily}`;
-    ctx.fillText(petNamesText, canvas.width * 0.5, canvas.height * 0.702);
+    ctx.fillText(petNamesText, canvas.width * 0.5, canvas.height * 0.722);
   
     return new Promise(resolve => {
       canvas.toBlob(blob => resolve(blob), 'image/png', 0.95);
