@@ -58,3 +58,24 @@
   left: 0;
   z-index: 0;
 }
+
+/* GeoPetShop V3 - Prevent mobile title hyphenation */
+#v3-avisos h1,
+#v3-avisos h2,
+#v3-avisos h3,
+#v3-avisos p,
+#v3-negocios h1,
+#v3-negocios h2,
+#v3-negocios h3,
+#v3-negocios p {
+  hyphens: none !important;
+  word-break: normal !important;
+  overflow-wrap: normal !important;
+}
+
+#v3-avisos h1,
+#v3-avisos h2,
+#v3-negocios h1,
+#v3-negocios h2 {
+  text-wrap: balance;
+}
