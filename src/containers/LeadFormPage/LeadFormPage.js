@@ -1053,11 +1053,11 @@ const makeFinalDiplomaBlob = async () => {
   return (
     <>
       <TopbarContainer currentPage="LeadFormPage" />
-  
+
       <main className={css.page}>
         <div className={css.app}>
           {renderHeader()}
-  
+
           {step === 0 ? renderPortada() : null}
           {step === 1 ? renderStep1() : null}
           {step === 2 ? renderStep2() : null}
@@ -1071,6 +1071,7 @@ const makeFinalDiplomaBlob = async () => {
         </div>
       </main>
     </>
-);
+  );
+};
 
 export default LeadFormPage;
