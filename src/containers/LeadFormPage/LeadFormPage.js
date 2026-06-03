@@ -2,6 +2,8 @@ import React, { useMemo, useState } from 'react';
 
 import css from './LeadFormPage.module.css';
 
+import TopbarContainer from '../TopbarContainer/TopbarContainer';
+
 const WEBHOOK_URL = process.env.REACT_APP_GEOPETSHOP_FORM_WEBHOOK_URL;
 const ASSET_BASE = '/static/geopetshop-form';
 
@@ -1049,23 +1051,26 @@ const makeFinalDiplomaBlob = async () => {
   };
 
   return (
-    <main className={css.page}>
-      <div className={css.app}>
-        {renderHeader()}
-
-        {step === 0 ? renderPortada() : null}
-        {step === 1 ? renderStep1() : null}
-        {step === 2 ? renderStep2() : null}
-        {step === 3 ? renderQuizIntro() : null}
-        {step === 4 ? renderQuestion(0) : null}
-        {step === 5 ? renderQuestion(1) : null}
-        {step === 6 ? renderQuestion(2) : null}
-        {step === 7 ? renderQuestion(3) : null}
-        {step === 8 ? renderLoading() : null}
-        {step === 9 ? renderResult() : null}
-      </div>
-    </main>
-  );
-};
+    <>
+      <TopbarContainer currentPage="LeadFormPage" />
+  
+      <main className={css.page}>
+        <div className={css.app}>
+          {renderHeader()}
+  
+          {step === 0 ? renderPortada() : null}
+          {step === 1 ? renderStep1() : null}
+          {step === 2 ? renderStep2() : null}
+          {step === 3 ? renderQuizIntro() : null}
+          {step === 4 ? renderQuestion(0) : null}
+          {step === 5 ? renderQuestion(1) : null}
+          {step === 6 ? renderQuestion(2) : null}
+          {step === 7 ? renderQuestion(3) : null}
+          {step === 8 ? renderLoading() : null}
+          {step === 9 ? renderResult() : null}
+        </div>
+      </main>
+    </>
+);
 
 export default LeadFormPage;
