@@ -813,7 +813,7 @@ const makeFinalDiplomaBlob = async () => {
           type="tel"
           value={phone}
           onChange={e => setPhone(e.target.value)}
-          placeholder="Ej. 11 7016 7380"
+          placeholder="Ej. 11 7001 3000"
         />
       </label>
 
