@@ -340,7 +340,7 @@ const LeadFormPage = () => {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState('+54 9 ');
+  const [phone, setPhone] = useState('');
   
   const [quantity, setQuantity] = useState(1);
   const [pets, setPets] = useState([emptyPet()]);
@@ -403,9 +403,6 @@ const LeadFormPage = () => {
     if (!lastName.trim()) return 'Completá tu apellido.';
     if (!email.trim()) return 'Completá tu email.';
     if (!phone.trim()) return 'Completá tu celular.';
-    if (!isValidArgentinaMobile(phone)) {
-      return 'Ingresá un celular argentino válido. Ejemplo: 11 7016 7380 o +54 9 11 7016 7380.';
-    }
     return null;
   };
 
@@ -515,7 +512,7 @@ const submitRegistrationToN8n = async (finalAnswers, winner) => {
     firstName,
     lastName,
     email,
-    phone: normalizeArgentinaPhone(phone),
+    phone,
     quantity,
     pets,
     saleAfuera,
@@ -552,7 +549,7 @@ const submitRegistrationToN8n = async (finalAnswers, winner) => {
     setFirstName('');
     setLastName('');
     setEmail('');
-    setPhone('+54 9 ');
+    setPhone('');
     setQuantity(1);
     setPets([emptyPet()]);
     setSaleAfuera('');
@@ -816,7 +813,7 @@ const makeFinalDiplomaBlob = async () => {
           type="tel"
           value={phone}
           onChange={e => setPhone(e.target.value)}
-          placeholder="+54 9 11 1234 5678"
+          placeholder="Ej. 11 7016 7380"
         />
       </label>
 
