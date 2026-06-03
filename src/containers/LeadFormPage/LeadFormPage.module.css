@@ -1,8 +1,8 @@
 .page {
-  min-height: 100vh;
+  min-height: calc(100vh - var(--topbarHeight));
   background: linear-gradient(135deg, #d8fff4 0%, #e8fbff 100%);
   color: #1b2b5c;
-  padding: 20px 12px 48px;
+  padding: 24px 12px 48px;
   box-sizing: border-box;
 }
 
