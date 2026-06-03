@@ -1,8 +1,8 @@
 import React, { useMemo, useState } from 'react';
 
-import css from './LeadFormPage.module.css';
-
 import TopbarContainer from '../TopbarContainer/TopbarContainer';
+
+import css from './LeadFormPage.module.css';
 
 const WEBHOOK_URL = process.env.REACT_APP_GEOPETSHOP_FORM_WEBHOOK_URL;
 const ASSET_BASE = '/static/geopetshop-form';
