@@ -80,8 +80,9 @@ const routeConfiguration = (layoutConfig, accessControlConfig) => {
     {
       path: '/',
       name: 'LandingPage',
-      component: LandingPage,
-      loadData: pageDataLoadingAPI.LandingPage.loadData,
+      component: props => <CMSPage {...props} params={{ pageId: 'landing-page-v3' }} />,
+      loadData: (params, search, config) =>
+        pageDataLoadingAPI.CMSPage.loadData({ pageId: 'landing-page-v3' }, search, config),
     },
     {
       path: '/formulario',
