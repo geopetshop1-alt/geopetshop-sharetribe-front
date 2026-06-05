@@ -126,3 +126,24 @@
     padding-bottom: 48px;
   }
 }
+
+/* GeoPetShop - avoid broken words in mobile hero titles */
+.root h1,
+.root h2,
+.root h3,
+#v3-avisos h1,
+#v3-avisos h2,
+#v3-negocios h1,
+#v3-negocios h2 {
+  word-break: normal;
+  overflow-wrap: normal;
+  hyphens: none;
+}
+
+@media (max-width: 767px) {
+  #v3-avisos h1,
+  #v3-avisos h2 {
+    font-size: 36px;
+    line-height: 1.15;
+  }
+}
