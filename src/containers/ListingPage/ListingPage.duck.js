@@ -366,6 +366,75 @@ export const fetchTransactionLineItems = ({ orderData, listingId, isOwnListing }
   return dispatch(fetchTransactionLineItemsThunk({ orderData, listingId, isOwnListing })).unwrap();
 };
 
+////////////////////////////
+// Fetch Store Products   //
+////////////////////////////
+
+const fetchStoreProductsPayloadCreator = async (
+  { clientifyAddressId, config },
+  { rejectWithValue, extra: sdk }
+) => {
+  try {
+    if (!clientifyAddressId) {
+      return [];
+    }
+
+    const {
+      aspectWidth = 1,
+      aspectHeight = 1,
+      variantPrefix = 'listing-card',
+    } = config.layout.listingImage;
+    const aspectRatio = aspectHeight / aspectWidth;
+
+    const perPage = 100;
+    let page = 1;
+    let allProducts = [];
+    let totalPages = 1;
+
+    do {
+      const response = await sdk.listings.query({
+        pub_listingType: 'productos',
+        perPage,
+        page,
+        include: ['images'],
+        'fields.image': [
+          `variants.${variantPrefix}`,
+          `variants.${variantPrefix}-2x`,
+          `variants.${variantPrefix}-4x`,
+          `variants.${variantPrefix}-6x`,
+        ],
+        ...createImageVariantConfig(`${variantPrefix}`, 400, aspectRatio),
+        ...createImageVariantConfig(`${variantPrefix}-2x`, 800, aspectRatio),
+        ...createImageVariantConfig(`${variantPrefix}-4x`, 1600, aspectRatio),
+        ...createImageVariantConfig(`${variantPrefix}-6x`, 2400, aspectRatio),
+      });
+
+      const products = denormalisedResponseEntities(response);
+
+      allProducts = [...allProducts, ...products];
+      totalPages = response.data.meta.totalPages || 1;
+      page += 1;
+    } while (page <= totalPages);
+
+    return allProducts.filter(
+      product =>
+        String(product?.attributes?.metadata?.clientifyAddressId || '') ===
+        String(clientifyAddressId)
+    );
+  } catch (e) {
+    return rejectWithValue(storableError(e));
+  }
+};
+
+export const fetchStoreProductsThunk = createAsyncThunk(
+  'ListingPage/fetchStoreProducts',
+  fetchStoreProductsPayloadCreator
+);
+
+export const fetchStoreProducts = (clientifyAddressId, config) => dispatch => {
+  return dispatch(fetchStoreProductsThunk({ clientifyAddressId, config })).unwrap();
+};
+
 // ================ Slice ================ //
 
 const initialState = {
@@ -373,6 +442,9 @@ const initialState = {
   showListingError: null,
   reviews: [],
   fetchReviewsError: null,
+  storeProducts: [],
+  fetchStoreProductsInProgress: false,
+  fetchStoreProductsError: null,
   monthlyTimeSlots: {
     // '2022-03': {
     //   timeSlots: [],
@@ -427,6 +499,20 @@ const listingPageSlice = createSlice({
       })
       .addCase(fetchReviewsThunk.rejected, (state, action) => {
         state.fetchReviewsError = action.payload;
+      })
+      .addCase(fetchStoreProductsThunk.pending, state => {
+        state.fetchStoreProductsInProgress = true;
+        state.fetchStoreProductsError = null;
+        state.storeProducts = [];
+      })
+      .addCase(fetchStoreProductsThunk.fulfilled, (state, action) => {
+        state.fetchStoreProductsInProgress = false;
+        state.storeProducts = action.payload;
+      })
+      .addCase(fetchStoreProductsThunk.rejected, (state, action) => {
+        state.fetchStoreProductsInProgress = false;
+        state.fetchStoreProductsError = action.payload;
+        state.storeProducts = [];
       })
       .addCase(fetchTimeSlotsThunk.pending, (state, action) => {
         const { options, start, timeZone } = action.meta.arg;
@@ -560,6 +646,14 @@ export const loadData = (params, search, config) => (dispatch, getState, sdk) =>
   return Promise.all(promises).then(response => {
     const listingResponse = response[0];
     const listing = listingResponse?.data?.data;
+
+    const listingType = listing?.attributes?.publicData?.listingType;
+    const clientifyAddressId = listing?.attributes?.metadata?.clientifyAddressId;
+
+    if (listingType === 'tienda' && clientifyAddressId && !hasNoViewingRights) {
+      dispatch(fetchStoreProducts(clientifyAddressId, config));
+    }
+
     const transactionProcessAlias = listing?.attributes?.publicData?.transactionProcessAlias || '';
     if (isBookingProcessAlias(transactionProcessAlias) && !hasNoViewingRights) {
       // Fetch timeSlots if the user has viewing rights.
