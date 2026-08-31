@@ -23,6 +23,8 @@ import {
   OrderPanel,
   LayoutSingleColumn,
   SectionText,
+  ListingCard,
+  Button,
 } from '../../components';
 
 // Related components and modules
@@ -65,10 +67,17 @@ export const ListingPageComponent = props => {
     props.inquiryModalOpenForListingId === props.params.id
   );
   const [mounted, setMounted] = useState(false);
+  const [productSearch, setProductSearch] = useState('');
+  const [visibleProducts, setVisibleProducts] = useState(12);
 
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  useEffect(() => {
+    setProductSearch('');
+    setVisibleProducts(12);
+  }, [props.params.id]);
 
   const {
     isAuthenticated,
@@ -83,6 +92,9 @@ export const ListingPageComponent = props => {
     showListingError,
     reviews = [],
     fetchReviewsError,
+    storeProducts = [],
+    fetchStoreProductsInProgress,
+    fetchStoreProductsError,
     sendInquiryInProgress,
     sendInquiryError,
     history,
@@ -182,6 +194,17 @@ export const ListingPageComponent = props => {
     setInquiryModalOpen,
   });
 
+  const normalizedProductSearch = productSearch.trim().toLocaleLowerCase();
+
+  const filteredStoreProducts = storeProducts.filter(product => {
+    const productTitle = product?.attributes?.title || '';
+    return productTitle.toLocaleLowerCase().includes(normalizedProductSearch);
+  });
+
+  const visibleStoreProducts = filteredStoreProducts.slice(0, visibleProducts);
+  const hasMoreStoreProducts = visibleProducts < filteredStoreProducts.length;
+  const isStoreListing = publicData?.listingType === 'tienda';
+
   const handleOrderSubmit = values => {
     const isCurrentlyClosed = currentListing.attributes.state === LISTING_STATE_CLOSED;
     if (isOwnListing || isCurrentlyClosed) {
@@ -280,6 +303,88 @@ export const ListingPageComponent = props => {
               categoryConfiguration={config.categoryConfiguration}
               intl={intl}
             />
+
+            {isStoreListing && fetchStoreProductsInProgress ? (
+              <section style={{ marginTop: 40, marginBottom: 40 }}>
+                <H2 as="h2">Productos de esta tienda</H2>
+                <p>Cargando productos...</p>
+              </section>
+            ) : null}
+
+            {isStoreListing && fetchStoreProductsError ? (
+              <section style={{ marginTop: 40, marginBottom: 40 }}>
+                <H2 as="h2">Productos de esta tienda</H2>
+                <p>No pudimos cargar el catálogo en este momento.</p>
+              </section>
+            ) : null}
+
+            {isStoreListing &&
+            !fetchStoreProductsInProgress &&
+            !fetchStoreProductsError &&
+            storeProducts.length > 0 ? (
+              <section className={css.storeProductsSection}>
+                <div className={css.storeProductsHeader}>
+                  <H2 as="h2">Productos de esta tienda</H2>
+                  <span className={css.storeProductsCount}>
+                    {filteredStoreProducts.length} {filteredStoreProducts.length === 1 ? 'producto' : 'productos'}
+                  </span>
+                </div>
+
+                <div style={{ marginTop: 20, marginBottom: 24 }}>
+                  <input
+                    type="search"
+                    value={productSearch}
+                    onChange={event => {
+                      setProductSearch(event.target.value);
+                      setVisibleProducts(12);
+                    }}
+                    placeholder="Buscar productos"
+                    aria-label="Buscar productos de esta tienda"
+                    style={{
+                      width: '100%',
+                      maxWidth: 480,
+                      padding: '12px 14px',
+                      border: '1px solid #b2b2b2',
+                      borderRadius: 4,
+                      fontSize: 16,
+                    }}
+                  />
+                </div>
+
+                {filteredStoreProducts.length > 0 ? (
+                  <>
+                    <div className={css.storeProductsGrid}>
+                      {visibleStoreProducts.map(product => (
+                        <ListingCard
+                          key={product.id.uuid}
+                          listing={product}
+                          renderSizes="(max-width: 767px) 50vw, 240px"
+                        />
+                      ))}
+                    </div>
+
+                    {hasMoreStoreProducts ? (
+                      <div
+                        style={{
+                          display: 'flex',
+                          justifyContent: 'center',
+                          marginTop: 32,
+                        }}
+                      >
+                        <Button
+                          type="button"
+                          onClick={() => setVisibleProducts(current => current + 12)}
+                        >
+                          Ver más productos
+                        </Button>
+                      </div>
+                    ) : null}
+                  </>
+                ) : (
+                  <p>No encontramos productos con esa búsqueda.</p>
+                )}
+              </section>
+            ) : null}
 
             <SectionMapMaybe
               geolocation={geolocation}
@@ -386,6 +491,9 @@ const ListingPage = props => {
     showListingError,
     reviews,
     fetchReviewsError,
+    storeProducts,
+    fetchStoreProductsInProgress,
+    fetchStoreProductsError,
     monthlyTimeSlots,
     timeSlotsForDate,
     sendInquiryInProgress,
@@ -456,6 +564,9 @@ const ListingPage = props => {
       showListingError={showListingError}
       reviews={reviews}
       fetchReviewsError={fetchReviewsError}
+      storeProducts={storeProducts}
+      fetchStoreProductsInProgress={fetchStoreProductsInProgress}
+      fetchStoreProductsError={fetchStoreProductsError}
       monthlyTimeSlots={monthlyTimeSlots}
       timeSlotsForDate={timeSlotsForDate}
       lineItems={lineItems}
