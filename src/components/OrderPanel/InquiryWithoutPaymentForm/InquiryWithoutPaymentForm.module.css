@@ -12,3 +12,33 @@
     margin-top: 72px;
   }
 }
+
+
+.submitButtonCompact {
+  padding: 0;
+  margin-top: 10px;
+
+  @media (--viewportMedium) {
+    padding: 0;
+    margin-top: 10px;
+  }
+}
+
+.secondaryInquiryLink {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  padding: 7px 0;
+  width: 100%;
+  color: var(--marketplaceColor);
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: var(--fontWeightSemiBold);
+  text-align: center;
+  cursor: pointer;
+
+  &:hover,
+  &:focus {
+    text-decoration: underline;
+  }
+}

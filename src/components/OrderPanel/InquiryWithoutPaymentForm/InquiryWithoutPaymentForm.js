@@ -17,15 +17,23 @@ const renderForm = formRenderProps => {
     handleSubmit,
     isOwnListing,
     finePrintComponent: FinePrint,
+    submitButtonText,
+    compact = false,
   } = formRenderProps;
   const classes = classNames(rootClassName || css.root, className);
 
   return (
     <Form id={formId} onSubmit={handleSubmit} className={classes}>
-      <div className={css.submitButton}>
-        <PrimaryButton type="submit">
-          <FormattedMessage id="InquiryWithoutPaymentForm.ctaButton" />
-        </PrimaryButton>
+      <div className={classNames(css.submitButton, { [css.submitButtonCompact]: compact })}>
+        {compact ? (
+          <button type="submit" className={css.secondaryInquiryLink}>
+            {submitButtonText || 'Enviar consulta en GeoPetshop'}
+          </button>
+        ) : (
+          <PrimaryButton type="submit">
+            {submitButtonText || <FormattedMessage id="InquiryWithoutPaymentForm.ctaButton" />}
+          </PrimaryButton>
+        )}
         <FinePrint isOwnListing={isOwnListing} omitYouWontBeChargedMessage={true} />
       </div>
     </Form>

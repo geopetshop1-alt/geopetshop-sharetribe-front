@@ -435,6 +435,61 @@ export const fetchStoreProducts = (clientifyAddressId, config) => dispatch => {
   return dispatch(fetchStoreProductsThunk({ clientifyAddressId, config })).unwrap();
 };
 
+////////////////////////////
+// Fetch Linked Store     //
+////////////////////////////
+
+const fetchLinkedStorePayloadCreator = async (
+  { clientifyAddressId },
+  { rejectWithValue, extra: sdk }
+) => {
+  try {
+    if (!clientifyAddressId) {
+      return null;
+    }
+
+    const perPage = 100;
+    let page = 1;
+    let totalPages = 1;
+
+    do {
+      const response = await sdk.listings.query({
+        pub_listingType: 'tienda',
+        perPage,
+        page,
+      });
+
+      const stores = denormalisedResponseEntities(response);
+
+      const linkedStore = stores.find(
+        store =>
+          String(store?.attributes?.metadata?.clientifyAddressId || '') ===
+          String(clientifyAddressId)
+      );
+
+      if (linkedStore) {
+        return linkedStore;
+      }
+
+      totalPages = response.data.meta.totalPages || 1;
+      page += 1;
+    } while (page <= totalPages);
+
+    return null;
+  } catch (e) {
+    return rejectWithValue(storableError(e));
+  }
+};
+
+export const fetchLinkedStoreThunk = createAsyncThunk(
+  'ListingPage/fetchLinkedStore',
+  fetchLinkedStorePayloadCreator
+);
+
+export const fetchLinkedStore = clientifyAddressId => dispatch => {
+  return dispatch(fetchLinkedStoreThunk({ clientifyAddressId })).unwrap();
+};
+
 // ================ Slice ================ //
 
 const initialState = {
@@ -445,6 +500,9 @@ const initialState = {
   storeProducts: [],
   fetchStoreProductsInProgress: false,
   fetchStoreProductsError: null,
+  linkedStore: null,
+  fetchLinkedStoreInProgress: false,
+  fetchLinkedStoreError: null,
   monthlyTimeSlots: {
     // '2022-03': {
     //   timeSlots: [],
@@ -513,6 +571,20 @@ const listingPageSlice = createSlice({
         state.fetchStoreProductsInProgress = false;
         state.fetchStoreProductsError = action.payload;
         state.storeProducts = [];
+      })
+      .addCase(fetchLinkedStoreThunk.pending, state => {
+        state.fetchLinkedStoreInProgress = true;
+        state.fetchLinkedStoreError = null;
+        state.linkedStore = null;
+      })
+      .addCase(fetchLinkedStoreThunk.fulfilled, (state, action) => {
+        state.fetchLinkedStoreInProgress = false;
+        state.linkedStore = action.payload;
+      })
+      .addCase(fetchLinkedStoreThunk.rejected, (state, action) => {
+        state.fetchLinkedStoreInProgress = false;
+        state.fetchLinkedStoreError = action.payload;
+        state.linkedStore = null;
       })
       .addCase(fetchTimeSlotsThunk.pending, (state, action) => {
         const { options, start, timeZone } = action.meta.arg;
@@ -652,6 +724,10 @@ export const loadData = (params, search, config) => (dispatch, getState, sdk) =>
 
     if (listingType === 'tienda' && clientifyAddressId && !hasNoViewingRights) {
       dispatch(fetchStoreProducts(clientifyAddressId, config));
+    }
+
+    if (listingType === 'productos' && clientifyAddressId && !hasNoViewingRights) {
+      dispatch(fetchLinkedStore(clientifyAddressId));
     }
 
     const transactionProcessAlias = listing?.attributes?.publicData?.transactionProcessAlias || '';

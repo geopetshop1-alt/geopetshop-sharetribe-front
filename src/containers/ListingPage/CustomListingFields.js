@@ -21,7 +21,14 @@ import CustomExtendedDataSection from '../../components/CustomExtendedDataSectio
  * @returns React.Fragment containing aforementioned components
  */
 const CustomListingFields = props => {
-  const { publicData, metadata, listingFieldConfigs, categoryConfiguration, intl } = props;
+  const {
+    publicData,
+    metadata,
+    listingFieldConfigs,
+    categoryConfiguration,
+    intl,
+    excludedFieldKeys = [],
+  } = props;
 
   const { key: categoryPrefix, categories: listingCategoriesConfig } = categoryConfiguration;
   const categoriesObj = pickCategoryFields(publicData, categoryPrefix, 1, listingCategoriesConfig);
@@ -29,7 +36,9 @@ const CustomListingFields = props => {
 
   // Fields are shown by default. Set showConfig.displayOnListingPage to false to explicitly hide a field.
   const displayableFieldConfigs = listingFieldConfigs.filter(
-    fieldConfig => fieldConfig.showConfig?.displayOnListingPage !== false
+    fieldConfig =>
+      fieldConfig.showConfig?.displayOnListingPage !== false &&
+      !excludedFieldKeys.includes(fieldConfig.key)
   );
 
   const isFieldForSelectedCategories = fieldConfig => {
