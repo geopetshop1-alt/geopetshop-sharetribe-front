@@ -87,18 +87,26 @@ describe('util/routes.js', () => {
         hash: '',
       };
       expect(canonicalRoutePath(routes, location)).toEqual(
-        '/l/00000000-0000-0000-0000-000000000000'
+        '/l/some-slug-here/00000000-0000-0000-0000-000000000000'
       );
     });
     it('handles ListingPage book', () => {
       const location = {
-        pathname: '/l/some-slug-here/00000000-0000-0000-0000-000000000000?book=true',
-        search: '',
+        pathname: '/l/some-slug-here/00000000-0000-0000-0000-000000000000',
+        search: '?book=true',
         hash: '',
       };
       expect(canonicalRoutePath(routes, location)).toEqual(
-        '/l/00000000-0000-0000-0000-000000000000?book=true'
+        '/l/some-slug-here/00000000-0000-0000-0000-000000000000'
       );
+    });
+    it('consolidates parameterized SearchPage URLs', () => {
+      const location = {
+        pathname: '/s',
+        search: '?page=110&pub_categoryLevel1=tienda',
+        hash: '',
+      };
+      expect(canonicalRoutePath(routes, location)).toEqual('/s');
     });
     it('handles ListingBasePage', () => {
       const location = {

@@ -44,6 +44,11 @@ app.use(compression());
 // It creates the sitemap URL with the correct marketplace URL
 app.get('/robots.txt', robotsTxtRoute);
 
+app.get('/sitemap.xml', (req, res, next) => {
+  req.params.resource = 'index.xml';
+  sitemapResourceRoute(req, res, next);
+});
+
 // Handle different sitemap-* resources. E.g. /sitemap-index.xml
 app.get('/sitemap-:resource', sitemapResourceRoute);
 

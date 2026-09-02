@@ -128,10 +128,12 @@ const validateStripeCurrency = stripe => {
 const mergeLocalizations = (hostedLocalization, defaultLocalization) => {
   // This defaults to 'en', if no locale is set.
   const locale = hostedLocalization?.locale || defaultLocalization.locale || 'en';
+  // Sharetribe Console does not currently offer an Argentina-specific Spanish locale.
+  const marketplaceLocale = locale === 'es-MX' ? 'es-AR' : locale;
   // NOTE: We use this with DatePicker and moment, the range should be 0 - 6 instead of 1-7.
   const firstDay = hostedLocalization?.firstDayOfWeek || defaultLocalization.firstDayOfWeek || 1;
   const firstDayInMomentRange = firstDay % 7;
-  return { locale, firstDayOfWeek: firstDayInMomentRange };
+  return { locale: marketplaceLocale, firstDayOfWeek: firstDayInMomentRange };
 };
 
 /////////////////////
