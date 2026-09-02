@@ -164,6 +164,7 @@ export const ListingPageComponent = props => {
     );
   }
   const unitType = publicData.unitType;
+  const isStoreListing = publicData?.listingType === 'tienda';
   const isNegotiation = processType === 'negotiation';
 
   const commonParams = { params, history, routes: routeConfiguration };
@@ -251,16 +252,30 @@ export const ListingPageComponent = props => {
       {...noIndexMaybe}
       schema={{
         '@context': 'http://schema.org',
-        '@type': 'Product',
+        '@type': isStoreListing ? 'PetStore' : 'Product',
         description: description,
         name: schemaTitle,
         image: schemaImages,
-        offers: {
-          '@type': 'Offer',
-          url: productURL,
-          ...priceForSchemaMaybe(price),
-          ...availabilityMaybe,
-        },
+        url: productURL,
+        ...(geolocation
+          ? {
+              geo: {
+                '@type': 'GeoCoordinates',
+                latitude: geolocation.lat,
+                longitude: geolocation.lng,
+              },
+            }
+          : {}),
+        ...(!isStoreListing
+          ? {
+              offers: {
+                '@type': 'Offer',
+                url: productURL,
+                ...priceForSchemaMaybe(price),
+                ...availabilityMaybe,
+              },
+            }
+          : {}),
       }}
     >
       <LayoutSingleColumn className={css.pageRoot} topbar={topbar} footer={<FooterContainer />}>
@@ -346,7 +361,7 @@ export const ListingPageComponent = props => {
               }
               title={<FormattedMessage id="ListingPage.orderTitle" values={{ title: richTitle }} />}
               titleDesktop={
-                <H4 as="h1" className={css.orderPanelTitle}>
+                <H4 as="h2" className={css.orderPanelTitle}>
                   <FormattedMessage id="ListingPage.orderTitle" values={{ title: richTitle }} />
                 </H4>
               }

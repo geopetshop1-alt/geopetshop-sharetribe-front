@@ -239,7 +239,7 @@ export const getDerivedRenderData = ({
     { title, price: formattedPrice, marketplaceName }
   );
 
-  const productURL = `${config.marketplaceRootURL}${location.pathname}${location.search}${location.hash}`;
+  const productURL = `${config.marketplaceRootURL}/l/${listingSlug}/${listingId.uuid}`;
   const currentStock = currentListing.currentStock?.attributes?.quantity || 0;
   const schemaAvailability = !currentListing.currentStock
     ? null

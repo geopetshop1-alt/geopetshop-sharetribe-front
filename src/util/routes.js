@@ -107,19 +107,16 @@ export const canonicalRoutePath = (routes, location, pathOnly = false) => {
 
   const matches = matchPathname(pathname, routes);
   const isListingRoute = matches.length === 1 && matches[0].route.name === 'ListingPage';
+  const isSearchRoute =
+    matches.length === 1 &&
+    ['SearchPage', 'SearchPageWithListingType'].includes(matches[0].route.name);
 
   if (isListingRoute) {
-    // Remove the dynamic slug from the listing page canonical URL
+    return pathname.replace(/\/$/, '');
+  }
 
-    // Remove possible trailing slash
-    const cleanedPathName = pathname.replace(/\/$/, '');
-    const parts = cleanedPathName.split('/');
-
-    if (parts.length !== 4) {
-      throw new Error('Expected ListingPage route to have 4 parts');
-    }
-    const canonicalListingPathname = `/${parts[1]}/${parts[3]}`;
-    return pathOnly ? canonicalListingPathname : `${canonicalListingPathname}${search}${hash}`;
+  if (isSearchRoute) {
+    return pathname.replace(/\/$/, '');
   }
 
   return pathOnly ? pathname : `${pathname}${search}${hash}`;

@@ -320,6 +320,7 @@ export class SearchPageComponent extends Component {
         description={description}
         title={title}
         schema={schema}
+        noIndex={Boolean(location.search)}
       >
         <TopbarContainer rootClassName={topbarClasses} currentSearchParams={validQueryParams} />
         <div id="main-content" className={css.container} role="main">
