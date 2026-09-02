@@ -95,6 +95,7 @@ export const ListingPageComponent = props => {
     storeProducts = [],
     fetchStoreProductsInProgress,
     fetchStoreProductsError,
+    linkedStore,
     sendInquiryInProgress,
     sendInquiryError,
     history,
@@ -204,6 +205,20 @@ export const ListingPageComponent = props => {
   const visibleStoreProducts = filteredStoreProducts.slice(0, visibleProducts);
   const hasMoreStoreProducts = visibleProducts < filteredStoreProducts.length;
   const isStoreListing = publicData?.listingType === 'tienda';
+  const isProductListing = publicData?.listingType === 'productos';
+
+  const whatsappSourceListing = isStoreListing ? currentListing : linkedStore;
+
+  const whatsappRaw =
+    whatsappSourceListing?.attributes?.publicData?.whatsappComercio ||
+    whatsappSourceListing?.attributes?.metadata?.clientifyPhone ||
+    '';
+
+  const whatsappPhone = String(whatsappRaw).replace(/\D/g, '');
+
+  const whatsappMessage = isProductListing
+    ? `Hola, vengo de GeoPetshop. Quería consultar por ${title}.`
+    : 'Hola, vengo de GeoPetshop. Quería hacer una consulta.';
 
   const handleOrderSubmit = values => {
     const isCurrentlyClosed = currentListing.attributes.state === LISTING_STATE_CLOSED;
@@ -302,6 +317,7 @@ export const ListingPageComponent = props => {
               listingFieldConfigs={listingConfig.listingFields}
               categoryConfiguration={config.categoryConfiguration}
               intl={intl}
+              excludedFieldKeys={['whatsappComercio']}
             />
 
             {isStoreListing && fetchStoreProductsInProgress ? (
@@ -441,6 +457,8 @@ export const ListingPageComponent = props => {
               dayCountAvailableForBooking={config.stripe.dayCountAvailableForBooking}
               marketplaceName={config.marketplaceName}
               showListingImage={showListingImage}
+              whatsappPhone={whatsappPhone}
+              whatsappMessage={whatsappMessage}
             />
           </div>
         </div>
@@ -494,6 +512,7 @@ const ListingPage = props => {
     storeProducts,
     fetchStoreProductsInProgress,
     fetchStoreProductsError,
+    linkedStore,
     monthlyTimeSlots,
     timeSlotsForDate,
     sendInquiryInProgress,
@@ -567,6 +586,7 @@ const ListingPage = props => {
       storeProducts={storeProducts}
       fetchStoreProductsInProgress={fetchStoreProductsInProgress}
       fetchStoreProductsError={fetchStoreProductsError}
+      linkedStore={linkedStore}
       monthlyTimeSlots={monthlyTimeSlots}
       timeSlotsForDate={timeSlotsForDate}
       lineItems={lineItems}
