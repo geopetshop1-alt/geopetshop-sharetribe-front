@@ -23,6 +23,7 @@ import { hasPermissionToViewData, isUserAuthorized } from '../../util/userHelper
 import { ensureListing, ensureOwnListing } from '../../util/data';
 
 import { NamedRedirect } from '../../components';
+import ListingRedirectNotice from '../../components/ListingRedirectNotice/ListingRedirectNotice';
 
 const { UUID } = sdkTypes;
 
@@ -114,15 +115,19 @@ const ListingPageAccessWrapper = ({ PageComponent, ...rest }) => {
   }
 
   return (
-    <PageComponent
-      config={config}
-      routeConfiguration={routeConfiguration}
-      intl={intl}
-      history={history}
-      location={location}
-      showOwnListingsOnly={hasNoViewingRights}
-      {...rest}
-    />
+    <>
+      <PageComponent
+        config={config}
+        routeConfiguration={routeConfiguration}
+        intl={intl}
+        history={history}
+        location={location}
+        showOwnListingsOnly={hasNoViewingRights}
+        {...rest}
+      />
+
+      <ListingRedirectNotice onManageDisableScrolling={rest.onManageDisableScrolling} />
+    </>
   );
 };
 
