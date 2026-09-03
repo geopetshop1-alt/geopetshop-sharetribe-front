@@ -273,13 +273,41 @@ app.get('/{*splat}', async (req, res) => {
 
   dataLoader
     .loadData(req.url, sdk, appInfo)
+
     .then(data => {
       res.locals.timestampAfterLoadData = Date.now();
+
+      const listingRedirect = data?.preloadedState?.ListingPage?.listingRedirect;
+
+      if (listingRedirect) {
+        const { redirectListingId, categoryLevel1 } = listingRedirect;
+
+        let target;
+
+        if (redirectListingId) {
+          target = `/l/${redirectListingId}?listingRedirect=updated`;
+        } else if (categoryLevel1) {
+          target = `/s?pub_categoryLevel1=${encodeURIComponent(
+            categoryLevel1
+          )}&listingRedirect=unavailable`;
+        } else {
+          target = '/s?listingRedirect=unavailable';
+        }
+
+        res.redirect(308, target);
+
+        return null;
+      }
+
       const cspNonce = cspEnabled ? res.locals.cspNonce : null;
 
       return renderer.render(req.url, context, data, renderApp, webExtractor, cspNonce);
     })
     .then(html => {
+      if (html === null) {
+        return;
+      }
+
       res.locals.timestampAfterRender = Date.now();
 
       if (dev) {

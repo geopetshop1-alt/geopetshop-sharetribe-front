@@ -520,6 +520,7 @@ const initialState = {
     //   fetchTimeSlotsInProgress: null,
     // },
   },
+  listingRedirect: null,
   lineItems: null,
   fetchLineItemsInProgress: false,
   fetchLineItemsError: null,
@@ -718,6 +719,23 @@ export const loadData = (params, search, config) => (dispatch, getState, sdk) =>
   return Promise.all(promises).then(response => {
     const listingResponse = response[0];
     const listing = listingResponse?.data?.data;
+    const listingState = listing?.attributes?.state;
+    const publicData = listing?.attributes?.publicData || {};
+
+    if (listingState === 'closed') {
+      dispatch(
+        setInitialValues({
+          lineItems: null,
+          inquiryModalOpenForListingId,
+          listingRedirect: {
+            redirectListingId: publicData.redirectListingId || null,
+            categoryLevel1: publicData.categoryLevel1 || null,
+          },
+        })
+      );
+
+      return response;
+    }
 
     const listingType = listing?.attributes?.publicData?.listingType;
     const clientifyAddressId = listing?.attributes?.metadata?.clientifyAddressId;

@@ -17,6 +17,7 @@ import {
 import { hasPermissionToViewData, isUserAuthorized } from '../../util/userHelpers';
 
 import { NamedRedirect } from '../../components';
+import ListingRedirectNotice from '../../components/ListingRedirectNotice/ListingRedirectNotice';
 
 /**
  * Shared access gating for SearchPage variants: forbidden, private marketplace,
@@ -69,15 +70,19 @@ const SearchPageAccessWrapper = ({ PageComponent, ...rest }) => {
   }
 
   return (
-    <PageComponent
-      config={config}
-      routeConfiguration={routeConfiguration}
-      intl={intl}
-      history={history}
-      location={location}
-      currentUser={currentUser}
-      {...restOfProps}
-    />
+    <>
+      <PageComponent
+        config={config}
+        routeConfiguration={routeConfiguration}
+        intl={intl}
+        history={history}
+        location={location}
+        currentUser={currentUser}
+        {...restOfProps}
+      />
+
+      <ListingRedirectNotice onManageDisableScrolling={restOfProps.onManageDisableScrolling} />
+    </>
   );
 };
 
