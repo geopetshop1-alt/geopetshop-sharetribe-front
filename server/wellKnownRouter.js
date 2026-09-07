@@ -26,7 +26,7 @@ const appleAppSiteAssociation = {
     details: [
       {
         appID: 'V59Z742W72.com.geopetshop.app',
-        paths: ['/stonygotchi', '/stonygotchi/*'],
+        paths: ['/stonygotchi', '/stonygotchi/*', '/p/app-confirmada', '/p/app-confirmada/*'],
       },
     ],
   },
