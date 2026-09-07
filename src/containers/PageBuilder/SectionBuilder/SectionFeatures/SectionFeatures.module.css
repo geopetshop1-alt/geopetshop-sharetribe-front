@@ -36,3 +36,215 @@
   padding-left: 0;
   padding-right: 0;
 }
+
+/* ============================================================
+   StonyGotchi landing
+   Console anchors: visual-stonygotchi, stonecat
+   ============================================================ */
+
+/* Logo principal de StonyGotchi */
+
+:global(#visual-stonygotchi) {
+  width: 100%;
+  margin: 0;
+}
+
+/* Elimina el padding 32/64px exterior de SectionContainer */
+:global(#visual-stonygotchi) > [class*='sectionContent'] {
+  padding: 12px 0 16px;
+}
+
+:global(#visual-stonygotchi) .featuresMain {
+  padding: 0 24px;
+}
+
+:global(#visual-stonygotchi) .block {
+  max-width: 220px;
+  margin: 0 auto;
+}
+
+:global(#visual-stonygotchi) [class*='media'] {
+  width: 180px;
+  max-width: 180px;
+  flex: 0 0 180px;
+  margin: 0 auto;
+}
+
+:global(#visual-stonygotchi) img {
+  display: block;
+  width: 100%;
+  max-width: 180px;
+  height: auto;
+  margin: 0 auto;
+}
+
+
+/* Powered by Stonecat */
+
+:global(#stonecat) {
+  width: calc(100% - 24px);
+  max-width: 980px;
+  margin: 12px auto;
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+:global(#stonecat) > [class*='sectionContent'] {
+  padding: 20px 0;
+}
+
+:global(#stonecat) .featuresMain {
+  padding: 0 24px;
+}
+
+:global(#stonecat) .block {
+  max-width: 680px;
+  margin: 0 auto;
+  gap: 14px;
+}
+
+:global(#stonecat) [class*='media'] {
+  width: 180px;
+  max-width: 180px;
+  flex: 0 0 180px;
+  margin: 0 auto;
+}
+
+:global(#stonecat) img {
+  display: block;
+  width: 100%;
+  max-width: 180px;
+  height: auto;
+  margin: 0 auto;
+}
+
+:global(#stonecat) h2,
+:global(#stonecat) h3,
+:global(#stonecat) p {
+  color: var(--colorWhite);
+  text-align: center;
+}
+
+:global(#stonecat) h2,
+:global(#stonecat) h3 {
+  margin-top: 0;
+  margin-bottom: 8px;
+}
+
+:global(#stonecat) p {
+  max-width: 440px;
+  margin: 0 auto;
+  line-height: 1.5;
+}
+
+
+/* Mobile */
+
+@media (max-width: 767px) {
+  :global(#visual-stonygotchi) > [class*='sectionContent'] {
+    padding: 10px 0 12px;
+  }
+
+  :global(#visual-stonygotchi) .featuresMain {
+    padding: 0 20px;
+  }
+
+  :global(#visual-stonygotchi) .block {
+    max-width: 180px;
+  }
+
+  :global(#visual-stonygotchi) [class*='media'] {
+    width: 150px;
+    max-width: 150px;
+    flex: 0 0 auto;
+    margin: 0 auto;
+  }
+
+  :global(#visual-stonygotchi) img {
+    max-width: 150px;
+  }
+
+  :global(#stonecat) {
+    margin-top: 10px;
+    margin-bottom: 10px;
+  }
+
+  :global(#stonecat) > [class*='sectionContent'] {
+    padding: 18px 0;
+  }
+
+  :global(#stonecat) .featuresMain {
+    padding: 0 20px;
+  }
+
+  :global(#stonecat) .block {
+    max-width: 300px;
+    gap: 12px;
+  }
+
+  :global(#stonecat) [class*='media'] {
+    width: 160px;
+    max-width: 160px;
+    flex: 0 0 auto;
+    margin: 0 auto;
+  }
+
+  :global(#stonecat) img {
+    max-width: 160px;
+  }
+}
+
+
+/* Desktop */
+
+@media (min-width: 768px) {
+  :global(#visual-stonygotchi) > [class*='sectionContent'] {
+    padding: 16px 0 20px;
+  }
+
+  :global(#visual-stonygotchi) .block {
+    max-width: 240px;
+  }
+
+  :global(#visual-stonygotchi) [class*='media'] {
+    width: 200px;
+    max-width: 200px;
+    flex-basis: 200px;
+  }
+
+  :global(#visual-stonygotchi) img {
+    max-width: 200px;
+  }
+
+  :global(#stonecat) {
+    width: calc(100% - 64px);
+    margin-top: 16px;
+    margin-bottom: 16px;
+  }
+
+  :global(#stonecat) > [class*='sectionContent'] {
+    padding: 24px 0;
+  }
+
+  :global(#stonecat) .block {
+    display: grid;
+    grid-template-columns: 220px minmax(0, 1fr);
+    align-items: center;
+    gap: 32px;
+  }
+
+  :global(#stonecat) [class*='media'] {
+    width: 220px;
+    max-width: 220px;
+  }
+
+  :global(#stonecat) img {
+    max-width: 220px;
+  }
+
+  :global(#stonecat) h2,
+  :global(#stonecat) h3,
+  :global(#stonecat) p {
+    text-align: left;
+  }
+}
