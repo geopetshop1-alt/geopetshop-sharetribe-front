@@ -257,3 +257,10 @@
 .darkTheme pre {
   background-color: rgba(18, 59, 87, 0.9);
 }
+
+:global(#app-confirmada-descargas) .ctaButton {
+  display: block;
+  width: fit-content;
+  margin-left: auto;
+  margin-right: auto;
+}

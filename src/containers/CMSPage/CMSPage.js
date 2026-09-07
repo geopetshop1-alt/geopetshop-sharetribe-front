@@ -16,7 +16,7 @@ const PageBuilder = loadable(() =>
 );
 
 export const CMSPageComponent = props => {
-  const { params, pageAssetsData, inProgress, error } = props;
+  const { params, pageAssetsData, inProgress, error, afterSectionContent } = props;
   const pageId = params.pageId || props.pageId;
 
   if (!inProgress && error?.status === 404) {
@@ -29,6 +29,7 @@ export const CMSPageComponent = props => {
       inProgress={inProgress}
       schemaType="Article"
       featuredListings={getFeaturedListingsProps(pageId, props)}
+      afterSectionContent={afterSectionContent}
     />
   );
 };

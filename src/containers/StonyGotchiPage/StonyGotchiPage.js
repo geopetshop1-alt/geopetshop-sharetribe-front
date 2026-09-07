@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 
 import CMSPage from '../CMSPage/CMSPage';
+import StonyGotchiSignupForm from './StonyGotchiSignupForm';
 
 const STONECAT_URL = 'https://catlitterstonecat.com/';
 
@@ -43,7 +44,15 @@ const StonyGotchiPage = props => {
     window.location.replace(`${STONECAT_URL}${window.location.search}`);
   }, []);
 
-  return <CMSPage {...props} params={{ pageId: 'stonygotchi' }} />;
+  return (
+    <CMSPage
+      {...props}
+      params={{ pageId: 'stonygotchi' }}
+      afterSectionContent={{
+        registro: <StonyGotchiSignupForm />,
+      }}
+    />
+  );
 };
 
 export default StonyGotchiPage;
