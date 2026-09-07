@@ -105,3 +105,61 @@
     padding: 28px;
   }
 }
+
+/* ============================================================
+   StonyGotchi - benefits
+   Console anchor: beneficios
+   ============================================================ */
+
+#beneficios {
+  padding-top: 16px;
+  padding-bottom: 16px;
+}
+
+#beneficios header {
+  max-width: 760px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 24px;
+  padding-right: 24px;
+  text-align: center;
+}
+
+#beneficios header h2 {
+  margin-bottom: 12px;
+}
+
+#beneficios .baseColumn {
+  gap: 16px;
+  padding-top: 24px;
+  padding-bottom: 24px;
+}
+
+#beneficios .baseColumn > * {
+  min-height: 0;
+  padding: 22px 20px;
+  box-shadow: 0 6px 18px rgba(27, 79, 114, 0.07);
+}
+
+#beneficios .baseColumn > * h3 {
+  margin-bottom: 10px;
+  line-height: 1.25;
+}
+
+#beneficios .baseColumn > * p {
+  margin-bottom: 0;
+  line-height: 1.5;
+}
+
+@media (min-width: 768px) {
+  #beneficios {
+    padding-top: 24px;
+    padding-bottom: 24px;
+  }
+
+  #beneficios .baseColumn {
+    gap: 20px;
+    padding-top: 28px;
+    padding-bottom: 28px;
+  }
+}

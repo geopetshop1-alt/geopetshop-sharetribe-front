@@ -90,6 +90,13 @@ const routeConfiguration = (layoutConfig, accessControlConfig) => {
       component: LeadFormPage,
     },
     {
+      path: '/stonygotchi',
+      name: 'StonyGotchiPage',
+      component: props => <CMSPage {...props} params={{ pageId: 'stonygotchi' }} />,
+      loadData: (params, search, config) =>
+        pageDataLoadingAPI.CMSPage.loadData({ pageId: 'stonygotchi' }, search, config),
+    },
+    {
       path: '/p/:pageId',
       name: 'CMSPage',
       component: CMSPage,
