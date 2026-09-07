@@ -80,3 +80,27 @@
     padding: 24px 20px;
   }
 }
+
+.existingAccount {
+  margin: 0;
+  text-align: center;
+}
+
+.existingAccount a {
+  font-weight: 700;
+  color: #1b2d6b;
+}
+
+.openAppLink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  margin-top: 16px;
+  padding: 0 24px;
+  border-radius: 10px;
+  background: #1b2d6b;
+  color: #ffffff;
+  font-weight: 700;
+  text-decoration: none;
+}
