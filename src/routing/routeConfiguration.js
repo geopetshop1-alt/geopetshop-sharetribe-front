@@ -15,6 +15,12 @@ const pageDataLoadingAPI = getPageDataLoadingAPI();
 const AuthenticationPage = loadable(() => import(/* webpackChunkName: "AuthenticationPage" */ '../containers/AuthenticationPage/AuthenticationPage'));
 const CheckoutPage = loadable(() => import(/* webpackChunkName: "CheckoutPage" */ '../containers/CheckoutPage/CheckoutPage'));
 const CMSPage = loadable(() => import(/* webpackChunkName: "CMSPage" */ '../containers/CMSPage/CMSPage'));
+const StonyGotchiPage = loadable(() =>
+  import(
+    /* webpackChunkName: "StonyGotchiPage" */
+    '../containers/StonyGotchiPage/StonyGotchiPage'
+  )
+);
 const ContactDetailsPage = loadable(() => import(/* webpackChunkName: "ContactDetailsPage" */ '../containers/ContactDetailsPage/ContactDetailsPage'));
 const EditListingPage = loadable(() => import(/* webpackChunkName: "EditListingPage" */ '../containers/EditListingPage/EditListingPage'));
 const EmailVerificationPage = loadable(() => import(/* webpackChunkName: "EmailVerificationPage" */ '../containers/EmailVerificationPage/EmailVerificationPage'));
@@ -92,9 +98,13 @@ const routeConfiguration = (layoutConfig, accessControlConfig) => {
     {
       path: '/stonygotchi',
       name: 'StonyGotchiPage',
-      component: props => <CMSPage {...props} params={{ pageId: 'stonygotchi' }} />,
+      component: StonyGotchiPage,
       loadData: (params, search, config) =>
-        pageDataLoadingAPI.CMSPage.loadData({ pageId: 'stonygotchi' }, search, config),
+        pageDataLoadingAPI.CMSPage.loadData(
+          { pageId: 'stonygotchi' },
+          search,
+          config
+        ),
     },
     {
       path: '/p/:pageId',
