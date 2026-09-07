@@ -57,7 +57,14 @@ const StonyGotchiSignupForm = () => {
     return (
       <div className={css.success}>
         <h3>Revisá tu email</h3>
-        <p>Te enviamos un enlace para confirmar tu cuenta de StonyGotchi.</p>
+        <p>
+          Si es una cuenta nueva, te enviamos un enlace para confirmarla. Si ya tenés cuenta, podés
+          abrir StonyGotchi directamente.
+        </p>
+
+        <a className={css.openAppLink} href="/p/app-confirmada">
+          Abrir StonyGotchi
+        </a>
       </div>
     );
   }
@@ -99,6 +106,10 @@ const StonyGotchiSignupForm = () => {
         <button className={css.button} type="submit" disabled={inProgress}>
           {inProgress ? 'Creando cuenta...' : 'Crear cuenta'}
         </button>
+
+        <p className={css.existingAccount}>
+          ¿Ya tenés cuenta? <a href="/p/app-confirmada">Abrir StonyGotchi</a>
+        </p>
       </form>
     </div>
   );
