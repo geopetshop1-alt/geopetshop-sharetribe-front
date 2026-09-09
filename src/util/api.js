@@ -151,3 +151,25 @@ export const createUserWithIdp = body => {
 export const deleteUserAccount = body => {
   return post('/api/delete-account', body);
 };
+
+export const trackWhatsAppClick = body => {
+  return window.fetch(`${apiBaseUrl()}/api/whatsapp-click`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(body),
+    keepalive: true,
+  }).then(res => {
+    if (!res.ok) {
+      return res.json().then(data => {
+        const error = new Error(data?.error || 'WhatsApp tracking failed');
+        Object.assign(error, data);
+        throw error;
+      });
+    }
+
+    return null;
+  });
+};
+
