@@ -25,6 +25,7 @@ import {
 import { formatMoney } from '../../util/currency';
 import { createSlug, parse, stringify } from '../../util/urlHelpers';
 import { userDisplayNameAsString } from '../../util/data';
+import { trackWhatsAppClick } from '../../util/api';
 import {
   OFFER,
   REQUEST,
@@ -321,6 +322,11 @@ const OrderPanel = props => {
     showListingImage,
     whatsappPhone,
     whatsappMessage,
+    whatsappComercioListingId,
+    whatsappComercioNombre,
+    whatsappProductoListingId,
+    whatsappProductoNombre,
+    whatsappOrigen,
   } = props;
 
   const publicData = listing?.attributes?.publicData || {};
@@ -333,6 +339,22 @@ const OrderPanel = props => {
         whatsappMessage || 'Hola, vengo de GeoPetshop.'
       )}`
     : null;
+
+  const handleWhatsAppClick = () => {
+    const payload = {
+      comercioListingId: whatsappComercioListingId,
+      comercioNombre: whatsappComercioNombre,
+      productoListingId: whatsappProductoListingId,
+      productoNombre: whatsappProductoNombre,
+      telefonoWhatsapp: normalizedWhatsAppPhone,
+      origen: whatsappOrigen,
+      path: typeof window !== 'undefined' ? window.location.pathname : null,
+    };
+
+    trackWhatsAppClick(payload).catch(error => {
+      console.error('WhatsApp tracking failed:', error);
+    });
+  };
 
   const processName = resolveLatestProcessName(transactionProcessAlias.split('/')[0]);
   const lineItemUnitType = lineItemUnitTypeMaybe || `line-item/${unitType}`;
@@ -562,6 +584,7 @@ const OrderPanel = props => {
                 href={whatsappUrl}
                 target="_blank"
                 rel="noopener noreferrer"
+                onClick={handleWhatsAppClick}
               >
                 <WhatsAppIcon />
                 <span>Consultar por WhatsApp</span>
@@ -622,6 +645,7 @@ const OrderPanel = props => {
               href={whatsappUrl}
               target="_blank"
               rel="noopener noreferrer"
+              onClick={handleWhatsAppClick}
             >
               <WhatsAppIcon />
               <span>Consultar por WhatsApp</span>

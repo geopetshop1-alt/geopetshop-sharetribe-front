@@ -473,6 +473,11 @@ export const ListingPageComponent = props => {
               showListingImage={showListingImage}
               whatsappPhone={whatsappPhone}
               whatsappMessage={whatsappMessage}
+              whatsappComercioListingId={whatsappSourceListing?.id?.uuid}
+              whatsappComercioNombre={whatsappSourceListing?.attributes?.title}
+              whatsappProductoListingId={isProductListing ? currentListing?.id?.uuid : null}
+              whatsappProductoNombre={isProductListing ? title : null}
+              whatsappOrigen={isProductListing ? 'producto' : 'comercio'}
             />
           </div>
         </div>
