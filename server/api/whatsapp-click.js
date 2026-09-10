@@ -15,7 +15,6 @@ module.exports = async (req, res) => {
       productoNombre,
       telefonoWhatsapp,
       origen,
-      usuarioId,
       path,
     } = req.body || {};
 
@@ -53,7 +52,6 @@ module.exports = async (req, res) => {
         producto_nombre: productoNombre || null,
         telefono_whatsapp: telefonoWhatsapp,
         origen,
-        usuario_id: usuarioId || null,
         path: path || null,
       }),
     });
