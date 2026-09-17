@@ -32,6 +32,8 @@ import SearchErrors from './SearchErrors';
 
 import css from './SearchPage.module.css';
 
+const EMPTY_RESCUE_IDS = [];
+
 const MODAL_BREAKPOINT = 768; // Search is in modal on mobile layout
 
 // SortBy component has its content in dropdown-popup.
@@ -389,28 +391,28 @@ const SearchPage = props => {
   const primaryRescueListings = useSelector(state =>
     selectPrimaryRescue(
       state,
-      state.SearchPage.noResultsRescue?.primary?.resultIds || []
+      state.SearchPage.noResultsRescue?.primary?.resultIds || EMPTY_RESCUE_IDS
     )
   );
 
   const secondaryRescueListings = useSelector(state =>
     selectSecondaryRescue(
       state,
-      state.SearchPage.noResultsRescue?.secondary?.resultIds || []
+      state.SearchPage.noResultsRescue?.secondary?.resultIds || EMPTY_RESCUE_IDS
     )
   );
 
   const nearestPrimaryRescueListings = useSelector(state =>
     selectNearestPrimaryRescue(
       state,
-      state.SearchPage.noResultsRescue?.primary?.nearestResultIds || []
+      state.SearchPage.noResultsRescue?.primary?.nearestResultIds || EMPTY_RESCUE_IDS
     )
   );
 
   const nearestSecondaryRescueListings = useSelector(state =>
     selectNearestSecondaryRescue(
       state,
-      state.SearchPage.noResultsRescue?.secondary?.nearestResultIds || []
+      state.SearchPage.noResultsRescue?.secondary?.nearestResultIds || EMPTY_RESCUE_IDS
     )
   );
 
