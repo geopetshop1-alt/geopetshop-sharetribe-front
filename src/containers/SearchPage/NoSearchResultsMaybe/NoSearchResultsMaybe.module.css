@@ -2,8 +2,6 @@
 
 .noSearchResults {
   composes: h4 from global;
-
-  /* Reserves 48px of vertical space */
   line-height: 24px;
   margin-top: 18px;
   margin-bottom: 18px;
@@ -14,29 +12,262 @@
   }
 }
 
+.rescueRoot {
+  width: 100%;
+  padding: 8px 0 32px;
+}
+
+.intro {
+  margin-bottom: 24px;
+}
+
+.mainTitle {
+  margin: 0 0 8px;
+  font-size: 24px;
+  line-height: 32px;
+}
+
+.introText,
+.sectionDescription,
+.captureText {
+  margin: 0;
+  color: var(--colorGrey700);
+  font-size: 15px;
+  line-height: 22px;
+}
+
+.rescueSection {
+  margin: 28px 0;
+}
+
+.sectionHeader {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: flex-end;
+  margin-bottom: 14px;
+}
+
+.sectionTitle {
+  margin: 0 0 4px;
+  font-size: 19px;
+  line-height: 26px;
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 18px;
+
+  @media (--viewportMedium) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  @media (--viewportLarge) {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.cardWrapper {
+  position: relative;
+  min-width: 0;
+}
+
+.listingCard {
+  width: 100%;
+}
+
+.distance {
+  display: inline-block;
+  margin-top: 6px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: var(--colorGrey100);
+  font-size: 13px;
+  line-height: 18px;
+  font-weight: var(--fontWeightMedium);
+}
+
+.captureBlock {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  margin-top: 32px;
+
+  @media (--viewportMedium) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.captureItem {
+  border: 1px solid var(--colorGrey300);
+  border-radius: 12px;
+  padding: 18px;
+}
+
+.captureTitle {
+  margin: 0 0 8px;
+  font-size: 18px;
+  line-height: 25px;
+}
+
+.primaryAction,
+.secondaryAction,
+.viewAllButton,
 .createListingLink,
 .resetAllFiltersButton {
   composes: h5 from global;
   font-weight: var(--fontWeightMedium);
   color: var(--marketplaceColor);
-
-  /* Layout */
-  display: inline;
   margin: 0;
   padding: 0;
-
-  /* Override button styles */
-  outline: none;
-  text-align: left;
   border: none;
+  background: transparent;
+  outline: none;
   cursor: pointer;
 
   &:focus,
   &:hover {
     color: var(--colorGrey700);
   }
+}
+
+.primaryAction,
+.secondaryAction {
+  margin-top: 12px;
+}
+
+.viewAllButton {
+  white-space: nowrap;
+}
+
+.createListingLink,
+.resetAllFiltersButton {
+  display: inline;
+  text-align: left;
 
   @media (--viewportMedium) {
     padding: 3px 0 5px 0;
   }
+}
+
+
+.complementaryBlock {
+  margin-top: 30px;
+}
+
+.complementaryTitle {
+  margin: 0 0 14px;
+  font-size: 19px;
+  line-height: 26px;
+}
+
+.captureForm {
+  margin-top: 16px;
+}
+
+.field {
+  display: block;
+  margin-bottom: 12px;
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: var(--fontWeightMedium);
+}
+
+.field span {
+  display: block;
+  margin-bottom: 5px;
+}
+
+.field input {
+  width: 100%;
+  min-height: 42px;
+  padding: 9px 12px;
+  border: 1px solid var(--colorGrey300);
+  border-radius: 6px;
+  background: var(--colorWhite);
+  font: inherit;
+}
+
+.field input:focus {
+  outline: none;
+  border-color: var(--marketplaceColor);
+}
+
+.formActions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 4px;
+}
+
+.cancelAction {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--colorGrey700);
+  cursor: pointer;
+  font-weight: var(--fontWeightMedium);
+}
+
+.accountHint {
+  margin: 0 0 12px;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--colorGrey700);
+}
+
+.formError {
+  margin: 8px 0;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--colorFail);
+}
+
+.successMessage {
+  font-size: 16px;
+  line-height: 24px;
+  padding: 8px 0;
+}
+
+.primaryAction:disabled,
+.secondaryAction:disabled,
+.cancelAction:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+/* CTA destacados dentro de los bloques de captación */
+.primaryAction,
+.secondaryAction {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  margin-top: 14px;
+  padding: 10px 18px;
+  border: 0;
+  border-radius: 4px;
+  background: var(--marketplaceColor);
+  color: var(--colorWhite);
+  font-size: 15px;
+  line-height: 20px;
+  font-weight: var(--fontWeightSemiBold);
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 120ms ease, opacity 120ms ease;
+}
+
+.primaryAction:hover,
+.primaryAction:focus,
+.secondaryAction:hover,
+.secondaryAction:focus {
+  background: var(--marketplaceColorDark);
+  color: var(--colorWhite);
+}
+
+.primaryAction:disabled,
+.secondaryAction:disabled {
+  opacity: 0.55;
+  cursor: default;
 }

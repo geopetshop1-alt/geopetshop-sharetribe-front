@@ -22,6 +22,95 @@ import { addMarketplaceEntities } from '../../ducks/marketplaceData.duck';
 // So, there's enough cards to fill all columns on full pagination pages
 const RESULT_PAGE_SIZE = 24;
 
+const RESCUE_PAGE_SIZE = 4;
+const RESCUE_NEAREST_MAX_KM = 30;
+const RESCUE_BRANCHES = ['productos', 'servicios', 'tienda'];
+
+const emptyRescueBlock = branch => ({
+  branch,
+  resultIds: [],
+  total: 0,
+  distances: {},
+  nearestResultIds: [],
+  nearestDistances: {},
+});
+
+const emptyNoResultsRescue = () => ({
+  inProgress: false,
+  branch: null,
+  storesInZoneTotal: 0,
+  primary: emptyRescueBlock(null),
+  secondary: emptyRescueBlock(null),
+});
+
+const toRadians = degrees => (degrees * Math.PI) / 180;
+
+const boundsCenter = bounds => {
+  const ne = bounds?.ne;
+  const sw = bounds?.sw;
+
+  if (
+    typeof ne?.lat !== 'number' ||
+    typeof ne?.lng !== 'number' ||
+    typeof sw?.lat !== 'number' ||
+    typeof sw?.lng !== 'number'
+  ) {
+    return null;
+  }
+
+  // Mantener el mismo tipo SDK LatLng que ya trae bounds.
+  const LatLng = ne.constructor;
+
+  return new LatLng(
+    (ne.lat + sw.lat) / 2,
+    (ne.lng + sw.lng) / 2
+  );
+};
+
+const distanceKm = (origin, destination) => {
+  if (!origin || !destination) return null;
+
+  const earthRadiusKm = 6371;
+  const dLat = toRadians(destination.lat - origin.lat);
+  const dLng = toRadians(destination.lng - origin.lng);
+
+  const lat1 = toRadians(origin.lat);
+  const lat2 = toRadians(destination.lat);
+
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLng / 2) ** 2;
+
+  return 2 * earthRadiusKm * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+};
+
+const responseListings = response =>
+  (response?.data?.data || []).filter(
+    listing => !listing.attributes.deleted && listing.attributes.state === 'published'
+  );
+
+const responseTotal = response => response?.data?.meta?.totalItems || 0;
+
+const nearestResultData = (response, origin) => {
+  const rawListings = responseListings(response);
+
+  const candidates = rawListings
+    .map(listing => ({
+      id: listing.id,
+      distanceKm: distanceKm(origin, listing.attributes.geolocation),
+    }))
+    .filter(item => item.distanceKm !== null && item.distanceKm <= RESCUE_NEAREST_MAX_KM)
+    .sort((a, b) => a.distanceKm - b.distanceKm)
+    .slice(0, RESCUE_PAGE_SIZE);
+
+  return {
+    resultIds: candidates.map(item => item.id),
+    distances: Object.fromEntries(
+      candidates.map(item => [item.id.uuid, Math.round(item.distanceKm * 10) / 10])
+    ),
+  };
+};
+
 // ================ Helper Functions ================ //
 
 const resultIds = data => {
@@ -281,7 +370,11 @@ const searchListingsPayloadCreator = ({ searchParams, config }, thunkAPI) => {
   const datesMaybe = datesSearchParams(dates);
   const stockMaybe = stockFilters(datesMaybe);
   const seatsMaybe = seatsSearchParams(seats, datesMaybe);
-  const sortMaybe = sortSearchParams(sort, searchParams?.keywords !== undefined);
+  // Sharetribe ordena por distancia cuando se usa origin.
+  // origin no puede combinarse con sort.
+  const sortMaybe = searchParams?.origin
+    ? {}
+    : sortSearchParams(sort, searchParams?.keywords !== undefined);
 
   // Filter out potential referral data parameters so that they are not included in the API query
   const { userTypes = [] } = config.user;
@@ -347,6 +440,14 @@ export const searchListings = createAsyncThunk(
   searchListingsPayloadCreator
 );
 
+// Consultas auxiliares para rescatar búsquedas geolocalizadas sin resultados.
+// Usan el mismo query/sanitización de listings que la búsqueda principal,
+// pero no pisan los resultados visibles de SearchPage.
+export const searchRescueListings = createAsyncThunk(
+  'SearchPage/searchRescueListings',
+  searchListingsPayloadCreator
+);
+
 // ================ Slice ================ //
 
 const searchPageSlice = createSlice({
@@ -358,10 +459,25 @@ const searchPageSlice = createSlice({
     searchListingsError: null,
     currentPageResultIds: [],
     activeListingId: null,
+
+    // GPS - rescate de búsquedas geolocalizadas sin resultados
+    noResultsRescue: emptyNoResultsRescue(),
   },
   reducers: {
     setActiveListing: (state, action) => {
       state.activeListingId = action.payload;
+    },
+    resetNoResultsRescue: state => {
+      state.noResultsRescue = emptyNoResultsRescue();
+    },
+    setNoResultsRescueInProgress: (state, action) => {
+      state.noResultsRescue.inProgress = action.payload;
+    },
+    setNoResultsRescue: (state, action) => {
+      state.noResultsRescue = {
+        ...action.payload,
+        inProgress: false,
+      };
     },
   },
   extraReducers: builder => {
@@ -371,6 +487,7 @@ const searchPageSlice = createSlice({
         state.searchParams = action.meta.arg.searchParams;
         state.searchInProgress = true;
         state.searchListingsError = null;
+        state.noResultsRescue = emptyNoResultsRescue();
       })
       .addCase(searchListings.fulfilled, (state, action) => {
         state.currentPageResultIds = resultIds(action.payload.data);
@@ -382,11 +499,17 @@ const searchPageSlice = createSlice({
         state.searchInProgress = false;
         state.searchListingsError = action.payload;
       });
+
   },
 });
 
 // Export the action creator
-export const { setActiveListing } = searchPageSlice.actions;
+export const {
+  setActiveListing,
+  resetNoResultsRescue,
+  setNoResultsRescueInProgress,
+  setNoResultsRescue,
+} = searchPageSlice.actions;
 
 export default searchPageSlice.reducer;
 
@@ -464,5 +587,209 @@ export const loadData = (params, search, config) => (dispatch, getState, sdk) =>
     config,
   });
 
-  return dispatch(searchListingsCall);
+  return dispatch(searchListingsCall).then(async action => {
+    const totalItems = action.payload?.data?.meta?.totalItems;
+
+    // Sólo activamos el rescate cuando:
+    // - la búsqueda principal terminó correctamente en 0
+    // - existe una búsqueda geográfica real
+    // - conocemos la rama Productos / Servicios / Tienda
+    // Si el usuario sólo geolocalizó y no eligió una rama,
+    // tomamos Tiendas como base para determinar cobertura y cercanía.
+    const currentBranch =
+      rest.pub_categoryLevel1 ||
+      rest.pub_listingType ||
+      listingTypePathParam ||
+      'tienda';
+
+    const hasGeographicSearch = !!rest.bounds && (!!address || !!origin);
+    const isKnownBranch = RESCUE_BRANCHES.includes(currentBranch);
+
+    // La búsqueda normal de GeoPetShop usa bounds aunque sortSearchByDistance
+    // esté desactivado, por lo que origin normalmente no viene en la URL.
+    // Para el rescate por cercanía usamos origin si existe y, si no,
+    // el centro geográfico del área seleccionada.
+    const rescueOrigin = origin || boundsCenter(rest.bounds);
+
+    if (
+      typeof totalItems !== 'number' ||
+      totalItems > 0 ||
+      !hasGeographicSearch ||
+      !isKnownBranch
+    ) {
+      return action;
+    }
+
+    dispatch(setNoResultsRescueInProgress(true));
+
+    const primaryBranch = currentBranch;
+    const secondaryBranch =
+      currentBranch === 'tienda'
+        ? 'servicios'
+        : currentBranch === 'servicios'
+        ? 'tienda'
+        : 'tienda';
+
+    const rescueCardParams = {
+      include: ['author', 'images'],
+      'fields.listing': [
+        'title',
+        'geolocation',
+        'price',
+        'deleted',
+        'state',
+        'publicData.listingType',
+        'publicData.transactionProcessAlias',
+        'publicData.unitType',
+        'publicData.cardStyle',
+        'publicData.pickupEnabled',
+        'publicData.shippingEnabled',
+        'publicData.priceVariationsEnabled',
+        'publicData.priceVariants',
+      ],
+      'fields.user': ['profile.displayName', 'profile.abbreviatedName'],
+      'fields.image': [
+        'variants.scaled-small',
+        'variants.scaled-medium',
+        `variants.${variantPrefix}`,
+        `variants.${variantPrefix}-2x`,
+      ],
+      ...createImageVariantConfig(`${variantPrefix}`, 400, aspectRatio),
+      ...createImageVariantConfig(`${variantPrefix}-2x`, 800, aspectRatio),
+      'limit.images': 1,
+    };
+
+    const queryBranch = ({ branch, useBounds, useOrigin }) =>
+      dispatch(
+        searchRescueListings({
+          searchParams: {
+            ...(useBounds ? { bounds: rest.bounds } : {}),
+            ...(useOrigin && rescueOrigin ? { origin: rescueOrigin } : {}),
+            pub_categoryLevel1: branch,
+            pub_listingType: branch,
+            perPage: RESCUE_PAGE_SIZE,
+            ...rescueCardParams,
+          },
+          config,
+        })
+      );
+
+    try {
+      // Dentro de la zona:
+      // usamos bounds y origin juntos.
+      // bounds restringe el área y origin ordena por cercanía.
+      const [primaryAction, secondaryAction] = await Promise.all([
+        queryBranch({
+          branch: primaryBranch,
+          useBounds: true,
+          useOrigin: true,
+        }),
+        queryBranch({
+          branch: secondaryBranch,
+          useBounds: true,
+          useOrigin: true,
+        }),
+      ]);
+
+      const primaryResponse = primaryAction.payload;
+      const secondaryResponse = secondaryAction.payload;
+
+      const primaryTotal = responseTotal(primaryResponse);
+      const secondaryTotal = responseTotal(secondaryResponse);
+
+      const primaryInZone = responseListings(primaryResponse).slice(0, RESCUE_PAGE_SIZE);
+      const secondaryInZone = responseListings(secondaryResponse).slice(0, RESCUE_PAGE_SIZE);
+
+      const primaryResultIds = primaryInZone.map(listing => listing.id);
+      const secondaryResultIds = secondaryInZone.map(listing => listing.id);
+
+      const primaryDistances = Object.fromEntries(
+        primaryInZone
+          .map(listing => [
+            listing.id.uuid,
+            distanceKm(rescueOrigin, listing.attributes.geolocation),
+          ])
+          .filter(([, distance]) => distance !== null)
+          .map(([id, distance]) => [id, Math.round(distance * 10) / 10])
+      );
+
+      const secondaryDistances = Object.fromEntries(
+        secondaryInZone
+          .map(listing => [
+            listing.id.uuid,
+            distanceKm(rescueOrigin, listing.attributes.geolocation),
+          ])
+          .filter(([, distance]) => distance !== null)
+          .map(([id, distance]) => [id, Math.round(distance * 10) / 10])
+      );
+
+      // Para Productos no buscamos "productos a 30 km":
+      // el fallback exterior son tiendas que puedan tener ese producto.
+      const shouldFindNearestPrimary =
+        primaryTotal === 0 && primaryBranch !== 'productos' && !!rescueOrigin;
+
+      const shouldFindNearestSecondary =
+        secondaryTotal === 0 && !!rescueOrigin;
+
+      const [nearestPrimaryAction, nearestSecondaryAction] = await Promise.all([
+        shouldFindNearestPrimary
+          ? queryBranch({
+              branch: primaryBranch,
+              useBounds: false,
+              useOrigin: true,
+            })
+          : Promise.resolve(null),
+        shouldFindNearestSecondary
+          ? queryBranch({
+              branch: secondaryBranch,
+              useBounds: false,
+              useOrigin: true,
+            })
+          : Promise.resolve(null),
+      ]);
+
+      const nearestPrimary = nearestPrimaryAction
+        ? nearestResultData(nearestPrimaryAction.payload, rescueOrigin)
+        : { resultIds: [], distances: {} };
+
+      const nearestSecondary = nearestSecondaryAction
+        ? nearestResultData(nearestSecondaryAction.payload, rescueOrigin)
+        : { resultIds: [], distances: {} };
+
+      const storesInZoneTotal =
+        primaryBranch === 'tienda'
+          ? primaryTotal
+          : secondaryBranch === 'tienda'
+          ? secondaryTotal
+          : 0;
+
+      dispatch(
+        setNoResultsRescue({
+          branch: currentBranch,
+          storesInZoneTotal,
+          primary: {
+            branch: primaryBranch,
+            resultIds: primaryResultIds,
+            total: primaryTotal,
+            distances: primaryDistances,
+            nearestResultIds: nearestPrimary.resultIds,
+            nearestDistances: nearestPrimary.distances,
+          },
+          secondary: {
+            branch: secondaryBranch,
+            resultIds: secondaryResultIds,
+            total: secondaryTotal,
+            distances: secondaryDistances,
+            nearestResultIds: nearestSecondary.resultIds,
+            nearestDistances: nearestSecondary.distances,
+          },
+        })
+      );
+    } catch (error) {
+      console.error('No-results rescue search failed', error);
+      dispatch(resetNoResultsRescue());
+    }
+
+    return action;
+  });
 };

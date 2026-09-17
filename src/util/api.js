@@ -173,3 +173,24 @@ export const trackWhatsAppClick = body => {
   });
 };
 
+
+
+export const trackSearchNoResults = body => {
+  return window.fetch(`${apiBaseUrl()}/api/search-no-results`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(body),
+  }).then(res => {
+    if (!res.ok) {
+      return res.json().then(data => {
+        const error = new Error(data?.error || 'Search no-results tracking failed');
+        Object.assign(error, data);
+        throw error;
+      });
+    }
+
+    return null;
+  });
+};

@@ -17,6 +17,7 @@ const initiatePrivileged = require('./api/initiate-privileged');
 const transitionPrivileged = require('./api/transition-privileged');
 const deleteAccount = require('./api/delete-account');
 const whatsappClick = require('./api/whatsapp-click');
+const searchNoResults = require('./api/search-no-results');
 
 const createUserWithIdp = require('./api/auth/createUserWithIdp');
 
@@ -58,6 +59,7 @@ router.post('/initiate-privileged', initiatePrivileged);
 router.post('/transition-privileged', transitionPrivileged);
 router.post('/delete-account', deleteAccount);
 router.post('/whatsapp-click', express.json(), whatsappClick);
+router.post('/search-no-results', express.json(), searchNoResults);
 
 // Create user with identity provider (e.g. Facebook or Google)
 // This endpoint is called to create a new user after user has confirmed

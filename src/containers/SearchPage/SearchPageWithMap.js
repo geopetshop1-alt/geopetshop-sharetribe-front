@@ -65,6 +65,7 @@ export class SearchPageComponent extends Component {
     this.applyFilters = this.applyFilters.bind(this);
     this.cancelFilters = this.cancelFilters.bind(this);
     this.resetAll = this.resetAll.bind(this);
+    this.viewAllRescueBranch = this.viewAllRescueBranch.bind(this);
     this.getHandleChangedValueFn = this.getHandleChangedValueFn.bind(this);
 
     // SortBy
@@ -173,6 +174,24 @@ export class SearchPageComponent extends Component {
     });
   }
 
+  viewAllRescueBranch(branch) {
+    const { history, routeConfiguration } = this.props;
+    const current = validUrlQueryParamsFromProps(this.props);
+
+    // Mantener ubicación pero limpiar los filtros específicos.
+    // La categoría nivel 1 queda fijada a la rama del bloque.
+    const queryParams = {
+      ...(current.address ? { address: current.address } : {}),
+      ...(current.bounds ? { bounds: current.bounds } : {}),
+      ...(current.origin ? { origin: current.origin } : {}),
+      pub_categoryLevel1: branch,
+    };
+
+    history.push(
+      createResourceLocatorString('SearchPage', routeConfiguration, {}, queryParams)
+    );
+  }
+
   getHandleChangedValueFn(useHistoryPush) {
     const {
       history,
@@ -222,6 +241,8 @@ export class SearchPageComponent extends Component {
       searchParams = {},
       activeListingId,
       onActivateListing,
+      noResultsRescue,
+      rescueListings,
       routeConfiguration,
       config,
       params: currentPathParams = {},
@@ -301,6 +322,13 @@ export class SearchPageComponent extends Component {
         location={location}
         resetAll={this.resetAll}
         showCreateListingsLink={showCreateListingsLink}
+        currentUser={currentUser}
+        noResultsRescue={noResultsRescue}
+        primaryListings={rescueListings?.primary || []}
+        secondaryListings={rescueListings?.secondary || []}
+        nearestPrimaryListings={rescueListings?.nearestPrimary || []}
+        nearestSecondaryListings={rescueListings?.nearestSecondary || []}
+        onViewAllRescueBranch={this.viewAllRescueBranch}
       />
     );
 
@@ -502,6 +530,10 @@ export class SearchPageComponent extends Component {
 const SearchPage = props => {
   const dispatch = useDispatch();
   const selectListingsById = useMemo(makeGetListingsByIdSelector, []);
+  const selectPrimaryRescue = useMemo(makeGetListingsByIdSelector, []);
+  const selectSecondaryRescue = useMemo(makeGetListingsByIdSelector, []);
+  const selectNearestPrimaryRescue = useMemo(makeGetListingsByIdSelector, []);
+  const selectNearestSecondaryRescue = useMemo(makeGetListingsByIdSelector, []);
 
   const currentUser = useSelector(state => state.user?.currentUser);
   const {
@@ -510,10 +542,47 @@ const SearchPage = props => {
     searchListingsError,
     searchParams,
     activeListingId,
+    noResultsRescue,
   } = useSelector(state => state.SearchPage);
   const listings = useSelector(state =>
     selectListingsById(state, state.SearchPage.currentPageResultIds)
   );
+
+  const primaryRescueListings = useSelector(state =>
+    selectPrimaryRescue(
+      state,
+      state.SearchPage.noResultsRescue?.primary?.resultIds || []
+    )
+  );
+
+  const secondaryRescueListings = useSelector(state =>
+    selectSecondaryRescue(
+      state,
+      state.SearchPage.noResultsRescue?.secondary?.resultIds || []
+    )
+  );
+
+  const nearestPrimaryRescueListings = useSelector(state =>
+    selectNearestPrimaryRescue(
+      state,
+      state.SearchPage.noResultsRescue?.primary?.nearestResultIds || []
+    )
+  );
+
+  const nearestSecondaryRescueListings = useSelector(state =>
+    selectNearestSecondaryRescue(
+      state,
+      state.SearchPage.noResultsRescue?.secondary?.nearestResultIds || []
+    )
+  );
+
+  const rescueListings = {
+    primary: primaryRescueListings,
+    secondary: secondaryRescueListings,
+    nearestPrimary: nearestPrimaryRescueListings,
+    nearestSecondary: nearestSecondaryRescueListings,
+  };
+
   const scrollingDisabled = useSelector(state => isScrollingDisabled(state));
 
   const onManageDisableScrolling = useCallback(
@@ -537,6 +606,8 @@ const SearchPage = props => {
       searchListingsError={searchListingsError}
       searchParams={searchParams}
       activeListingId={activeListingId}
+      noResultsRescue={noResultsRescue}
+      rescueListings={rescueListings}
       onManageDisableScrolling={onManageDisableScrolling}
       onActivateListing={onActivateListing}
     />
