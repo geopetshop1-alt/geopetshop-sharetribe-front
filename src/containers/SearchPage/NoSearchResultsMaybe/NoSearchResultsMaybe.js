@@ -28,6 +28,90 @@ const branchLabels = {
   },
 };
 
+
+const addressParts = address => {
+  if (!address) {
+    return {
+      ciudad: null,
+      provincia: null,
+      pais: null,
+      codigoPostal: null,
+    };
+  }
+
+  const parts = address
+    .split(',')
+    .map(part => part.trim())
+    .filter(Boolean);
+
+  // Ejemplo Google:
+  // Av. Italia 5043
+  // B1622 Benavidez
+  // Provincia de Buenos Aires
+  // Argentina
+
+  const localityPart = parts.find(part =>
+    /\b[A-Z]\d{4}\b/i.test(part)
+  );
+
+  const postalMatch = localityPart?.match(/\b[A-Z]\d{4}\b/i);
+
+  const codigoPostal = postalMatch?.[0] || null;
+
+  const ciudad = localityPart
+    ? localityPart
+        .replace(/\b[A-Z]\d{4}\b/i, '')
+        .trim() || null
+    : null;
+
+  const provincia =
+    parts.find(part => /^Provincia de /i.test(part)) || null;
+
+  const pais =
+    parts.find(part =>
+      /^(Argentina|Uruguay|Chile|Brasil|Brazil)$/i.test(part)
+    ) || null;
+
+  return {
+    ciudad,
+    provincia,
+    pais,
+    codigoPostal,
+  };
+};
+
+const centerFromBoundsString = bounds => {
+  if (!bounds || typeof bounds !== 'string') return null;
+
+  const values = bounds.split(',').map(Number);
+
+  if (values.length !== 4 || values.some(Number.isNaN)) {
+    return null;
+  }
+
+  const [neLat, neLng, swLat, swLng] = values;
+
+  return {
+    lat: (neLat + swLat) / 2,
+    lng: (neLng + swLng) / 2,
+  };
+};
+
+const rescueListingZone = listing => {
+  const publicData = listing?.attributes?.publicData || {};
+
+  return (
+    publicData.ciudad ||
+    publicData.city ||
+    publicData.localidad ||
+    publicData.zone ||
+    publicData.zona ||
+    publicData.location?.address ||
+    publicData.address ||
+    null
+  );
+};
+
 const RescueCards = ({
   listings = [],
   distances = {},
@@ -144,26 +228,65 @@ const NoSearchResultsMaybe = props => {
   const nearestShown = [
     ...nearestPrimaryListings.map(listing => ({
       listingId: listing?.id?.uuid,
+      listingName: listing?.attributes?.title || null,
+      listingZone: rescueListingZone(listing),
       branch: primary.branch,
       distanceKm: primary.nearestDistances?.[listing?.id?.uuid] ?? null,
     })),
     ...nearestSecondaryListings.map(listing => ({
       listingId: listing?.id?.uuid,
+      listingName: listing?.attributes?.title || null,
+      listingZone: rescueListingZone(listing),
       branch: secondary.branch,
       distanceKm: secondary.nearestDistances?.[listing?.id?.uuid] ?? null,
     })),
   ];
 
+  const nearestStore =
+    nearestShown
+      .filter(item => item.branch === 'tienda' && typeof item.distanceKm === 'number')
+      .sort((a, b) => a.distanceKm - b.distanceKm)[0] || null;
+
+  const parsedAddress = addressParts(searchQuery.address);
+  const boundsCenter = centerFromBoundsString(searchQuery.bounds);
+
   const basePayload = {
     caso: rescue.storesInZoneTotal > 0 ? 1 : 2,
     categoria: rescue.branch || null,
-    zonaOriginal: searchQuery.address || null,
+
+    zonaOriginal:
+      parsedAddress.ciudad ||
+      searchQuery.address ||
+      null,
+
     direccionTexto: searchQuery.address || null,
-    termino: searchQuery.keywords || null,
+
+    ciudad: parsedAddress.ciudad,
+    provincia: parsedAddress.provincia,
+    pais: parsedAddress.pais,
+    codigoPostal: parsedAddress.codigoPostal,
+
+    lat: boundsCenter?.lat ?? null,
+    lng: boundsCenter?.lng ?? null,
+
+    termino:
+      searchQuery.keywords ||
+      searchQuery.keyword ||
+      null,
+
     filtros: searchQuery,
+
     cantidadComerciosZona: rescue.storesInZoneTotal ?? null,
+
+    comercioCercanoListingId: nearestStore?.listingId || null,
+    comercioCercanoNombre: nearestStore?.listingName || null,
+    comercioCercanoZona: nearestStore?.listingZone || null,
+    distanciaCercanoKm: nearestStore?.distanceKm ?? null,
+
     userId,
+
     path: `${location.pathname || ''}${location.search || ''}`,
+
     metadata: {
       nearestShown,
     },
