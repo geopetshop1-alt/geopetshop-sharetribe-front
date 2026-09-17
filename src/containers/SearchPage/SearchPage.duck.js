@@ -602,7 +602,7 @@ export const loadData = (params, search, config) => (dispatch, getState, sdk) =>
       listingTypePathParam ||
       'tienda';
 
-    const hasGeographicSearch = !!rest.bounds && (!!address || !!origin);
+    const hasGeographicSearch = !!rest.bounds || !!origin;
     const isKnownBranch = RESCUE_BRANCHES.includes(currentBranch);
 
     // La búsqueda normal de GeoPetShop usa bounds aunque sortSearchByDistance
