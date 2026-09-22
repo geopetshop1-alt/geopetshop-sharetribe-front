@@ -623,28 +623,13 @@ propTypes.listingField = shape({
 propTypes.listingFields = arrayOf(propTypes.listingField);
 
 const sortConfigOptionWithLabel = shape({
-  key: oneOf([
-    '-meta_prioridad,-createdAt',
-    'createdAt',
-    '-createdAt',
-    'price',
-    '-price',
-    'relevance',
-  ]).isRequired,
+  key: oneOf(['createdAt', '-createdAt', 'price', '-price', 'relevance']).isRequired,
   label: string.isRequired,
   longLabel: string,
 });
 
 const sortConfigOptionWithTranslationKey = shape({
-  key: oneOf([
-    '-meta_prioridad,-createdAt',
-    'createdAt',
-    '-createdAt',
-    'price',
-    '-price',
-    'relevance',
-  ]).isRequired,
-
+  key: oneOf(['createdAt', '-createdAt', 'price', '-price', 'relevance']).isRequired,
   labelTranslationKey: string.isRequired,
   labelTranslationKeyLong: string,
 });
