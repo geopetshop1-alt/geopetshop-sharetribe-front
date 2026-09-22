@@ -85,6 +85,10 @@ export const sortConfig = {
 
   options: [
     // These are default sort options
+    {
+      key: '-meta_prioridad,-createdAt',
+      labelTranslationKey: 'SortBy.default',
+    },
     { key: 'createdAt', labelTranslationKey: 'SortBy.newest' },
     { key: '-createdAt', labelTranslationKey: 'SortBy.oldest' },
     { key: '-price', labelTranslationKey: 'SortBy.lowestPrice' },
