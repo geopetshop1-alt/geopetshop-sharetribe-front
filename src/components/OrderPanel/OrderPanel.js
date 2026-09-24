@@ -327,6 +327,7 @@ const OrderPanel = props => {
     whatsappProductoListingId,
     whatsappProductoNombre,
     whatsappOrigen,
+    whatsappClientifyContactId,
   } = props;
 
   const publicData = listing?.attributes?.publicData || {};
@@ -347,6 +348,7 @@ const OrderPanel = props => {
       productoListingId: whatsappProductoListingId,
       productoNombre: whatsappProductoNombre,
       telefonoWhatsapp: normalizedWhatsAppPhone,
+      clientifyContactId: whatsappClientifyContactId,
       origen: whatsappOrigen,
       path: typeof window !== 'undefined' ? window.location.pathname : null,
     };

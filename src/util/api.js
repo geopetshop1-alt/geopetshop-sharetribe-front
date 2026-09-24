@@ -173,6 +173,26 @@ export const trackWhatsAppClick = body => {
   });
 };
 
+export const trackListingView = body => {
+  return window.fetch(`${apiBaseUrl()}/api/listing-view`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(body),
+    keepalive: true,
+  }).then(res => {
+    if (!res.ok) {
+      return res.json().then(data => {
+        const error = new Error(data?.error || 'Listing view tracking failed');
+        Object.assign(error, data);
+        throw error;
+      });
+    }
+
+    return null;
+  });
+};
 
 
 export const trackSearchNoResults = body => {
