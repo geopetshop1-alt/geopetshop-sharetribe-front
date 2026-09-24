@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useCallback } from 'react';
 import { useDispatch, useSelector, useStore } from 'react-redux';
 import classNames from 'classnames';
@@ -6,6 +6,7 @@ import classNames from 'classnames';
 // Utils
 import { FormattedMessage } from '../../util/reactIntl';
 import { LISTING_STATE_CLOSED, propTypes } from '../../util/types';
+import { trackListingView } from '../../util/api';
 import { OFFER, REQUEST } from '../../transactions/transaction';
 
 // Global ducks (for Redux actions and thunks)
@@ -69,6 +70,7 @@ export const ListingPageComponent = props => {
   const [mounted, setMounted] = useState(false);
   const [productSearch, setProductSearch] = useState('');
   const [visibleProducts, setVisibleProducts] = useState(12);
+  const lastTrackedListingRef = useRef(null);
 
   useEffect(() => {
     setMounted(true);
@@ -209,6 +211,9 @@ export const ListingPageComponent = props => {
 
   const whatsappSourceListing = isStoreListing ? currentListing : linkedStore;
 
+  const clientifyContactId =
+    whatsappSourceListing?.attributes?.metadata?.clientifyContactId || '';
+
   const whatsappRaw =
     whatsappSourceListing?.attributes?.publicData?.whatsappComercio ||
     whatsappSourceListing?.attributes?.metadata?.clientifyPhone ||
@@ -219,6 +224,79 @@ export const ListingPageComponent = props => {
   const whatsappMessage = isProductListing
     ? `Hola, vengo de GeoPetshop. Quería consultar por ${title}.`
     : 'Hola, vengo de GeoPetshop. Quería hacer una consulta.';
+
+useEffect(() => {
+  if (!isStoreListing && !isProductListing) {
+    return;
+  }
+
+  // En productos esperamos a tener identificada la tienda vinculada.
+  if (isProductListing && !linkedStore) {
+    return;
+  }
+
+  const sourceListing = isStoreListing ? currentListing : linkedStore;
+
+  const contactId = sourceListing?.attributes?.metadata?.clientifyContactId;
+  const comercioListingId = sourceListing?.id?.uuid;
+  const currentListingId = currentListing?.id?.uuid;
+
+  if (!contactId || !comercioListingId || !currentListingId) {
+    return;
+  }
+
+  // Evita registrar nuevamente la misma ficha por simples re-renders.
+  if (lastTrackedListingRef.current === currentListingId) {
+    return;
+  }
+
+  let sessionId = null;
+
+  try {
+    const storageKey = 'geopetshop_session_id';
+
+    sessionId = window.sessionStorage.getItem(storageKey);
+
+    if (!sessionId) {
+      sessionId =
+        typeof window.crypto?.randomUUID === 'function'
+          ? window.crypto.randomUUID()
+          : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+
+      window.sessionStorage.setItem(storageKey, sessionId);
+    }
+  } catch (error) {
+    // Si sessionStorage no está disponible, igualmente registramos la visita.
+  }
+
+  const payload = {
+    clientifyContactId: contactId,
+    comercioListingId,
+    comercioNombre: sourceListing?.attributes?.title || null,
+    productoListingId: isProductListing ? currentListingId : null,
+    productoNombre: isProductListing ? currentListing?.attributes?.title || null : null,
+    origen: isProductListing ? 'producto' : 'comercio',
+    path: typeof window !== 'undefined' ? window.location.pathname : null,
+    sessionId,
+  };
+
+  lastTrackedListingRef.current = currentListingId;
+
+  trackListingView(payload).catch(error => {
+    console.error('Listing view tracking failed:', error);
+
+    // Si falló realmente el registro, permitimos otro intento en un render posterior.
+    if (lastTrackedListingRef.current === currentListingId) {
+      lastTrackedListingRef.current = null;
+    }
+  });
+}, [
+  currentListing,
+  linkedStore,
+  isStoreListing,
+  isProductListing,
+]);
+
 
   const handleOrderSubmit = values => {
     const isCurrentlyClosed = currentListing.attributes.state === LISTING_STATE_CLOSED;
@@ -478,6 +556,7 @@ export const ListingPageComponent = props => {
               whatsappProductoListingId={isProductListing ? currentListing?.id?.uuid : null}
               whatsappProductoNombre={isProductListing ? title : null}
               whatsappOrigen={isProductListing ? 'producto' : 'comercio'}
+	      whatsappClientifyContactId={clientifyContactId}
             />
           </div>
         </div>

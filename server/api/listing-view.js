@@ -9,20 +9,20 @@ module.exports = async (req, res) => {
     }
 
     const {
+      clientifyContactId,
       comercioListingId,
       comercioNombre,
       productoListingId,
       productoNombre,
-      telefonoWhatsapp,
-      clientifyContactId,
       origen,
       path,
+      sessionId,
     } = req.body || {};
 
     const missing = [];
 
+    if (!clientifyContactId) missing.push('clientifyContactId');
     if (!comercioListingId) missing.push('comercioListingId');
-    if (!telefonoWhatsapp) missing.push('telefonoWhatsapp');
     if (!origen) missing.push('origen');
 
     if (missing.length) {
@@ -35,10 +35,13 @@ module.exports = async (req, res) => {
     }
 
     if (!['comercio', 'producto'].includes(origen)) {
-      return res.status(400).json({ ok: false, error: 'Invalid origin' });
+      return res.status(400).json({
+        ok: false,
+        error: 'Invalid origin',
+      });
     }
 
-    const response = await fetch(`${supabaseUrl}/rest/v1/web_whatsapp_clicks`, {
+    const response = await fetch(`${supabaseUrl}/rest/v1/web_listing_views`, {
       method: 'POST',
       headers: {
         apikey: supabaseAnonKey,
@@ -47,26 +50,26 @@ module.exports = async (req, res) => {
         Prefer: 'return=minimal',
       },
       body: JSON.stringify({
-        comercio_listing_id: comercioListingId,
+        clientify_contact_id: String(clientifyContactId),
+        comercio_listing_id: String(comercioListingId),
         comercio_nombre: comercioNombre || null,
         producto_listing_id: productoListingId || null,
         producto_nombre: productoNombre || null,
-        telefono_whatsapp: telefonoWhatsapp,
-        clientify_contact_id: clientifyContactId || null,
         origen,
         path: path || null,
+        session_id: sessionId || null,
       }),
     });
 
     if (!response.ok) {
       const errorBody = await response.text();
-      console.error('Supabase whatsapp tracking error:', response.status, errorBody);
+      console.error('Supabase listing view tracking error:', response.status, errorBody);
       return res.status(502).json({ ok: false });
     }
 
     return res.status(204).send();
   } catch (error) {
-    console.error('WhatsApp click tracking failed:', error);
+    console.error('Listing view tracking failed:', error);
     return res.status(500).json({ ok: false });
   }
 };
