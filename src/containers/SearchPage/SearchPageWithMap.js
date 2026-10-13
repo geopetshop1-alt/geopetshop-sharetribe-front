@@ -497,6 +497,14 @@ export class SearchPageComponent extends Component {
             onManageDisableScrolling={onManageDisableScrolling}
           >
             <div className={css.mapWrapper} data-testid="searchMapContainer">
+              <div className={css.mapResultsStatus}>
+                {searchInProgress
+                  ? 'Cargando resultados...'
+                  : totalItems > 100
+                  ? `${listings.length} de ${intl.formatNumber(totalItems)} resultados en esta área`
+                  : `${intl.formatNumber(totalItems)} resultados en esta área`}
+              </div>
+
               {shouldShowSearchMap ? (
                 <SearchMap
                   reusableContainerClassName={css.map}
