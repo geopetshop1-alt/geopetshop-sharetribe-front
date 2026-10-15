@@ -502,6 +502,7 @@ const initialState = {
   fetchStoreProductsError: null,
   linkedStore: null,
   fetchLinkedStoreInProgress: false,
+  fetchLinkedStoreFinished: false,
   fetchLinkedStoreError: null,
   monthlyTimeSlots: {
     // '2022-03': {
@@ -575,15 +576,18 @@ const listingPageSlice = createSlice({
       })
       .addCase(fetchLinkedStoreThunk.pending, state => {
         state.fetchLinkedStoreInProgress = true;
+        state.fetchLinkedStoreFinished = false;
         state.fetchLinkedStoreError = null;
         state.linkedStore = null;
       })
       .addCase(fetchLinkedStoreThunk.fulfilled, (state, action) => {
         state.fetchLinkedStoreInProgress = false;
+        state.fetchLinkedStoreFinished = true;
         state.linkedStore = action.payload;
       })
       .addCase(fetchLinkedStoreThunk.rejected, (state, action) => {
         state.fetchLinkedStoreInProgress = false;
+        state.fetchLinkedStoreFinished = true;
         state.fetchLinkedStoreError = action.payload;
         state.linkedStore = null;
       })
@@ -744,7 +748,12 @@ export const loadData = (params, search, config) => (dispatch, getState, sdk) =>
       dispatch(fetchStoreProducts(clientifyAddressId, config));
     }
 
-    if (listingType === 'productos' && clientifyAddressId && !hasNoViewingRights) {
+    // Resuelve la tienda vinculada como fallback para WhatsApp.
+    if (
+      ['tienda', 'productos', 'servicios'].includes(listingType) &&
+      clientifyAddressId &&
+      !hasNoViewingRights
+    ) {
       dispatch(fetchLinkedStore(clientifyAddressId));
     }
 
