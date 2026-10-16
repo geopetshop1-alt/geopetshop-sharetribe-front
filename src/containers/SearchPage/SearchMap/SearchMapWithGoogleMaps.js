@@ -473,7 +473,10 @@ class SearchMapWithGoogleMaps extends Component {
     if (hasDimensions) {
       const { bounds, center = new sdkTypes.LatLng(0, 0), zoom = 11 } = this.props;
       const maps = window.google.maps;
-      const controlPosition = maps.ControlPosition.LEFT_TOP;
+      const isMobile = window.innerWidth < 768;
+      const controlPosition = isMobile
+        ? maps.ControlPosition.RIGHT_BOTTOM
+        : maps.ControlPosition.LEFT_TOP;
       const zoomOutToShowEarth = { zoom: 1, center: { lat: 0, lng: 0 } };
       const zoomAndCenter = !bounds && !center ? zoomOutToShowEarth : { zoom, center };
 
@@ -485,6 +488,7 @@ class SearchMapWithGoogleMaps extends Component {
         fullscreenControl: false,
         clickableIcons: false,
         streetViewControl: false,
+        cameraControl: true,
 
         cameraControlOptions: {
           position: controlPosition,

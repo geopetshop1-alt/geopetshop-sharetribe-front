@@ -98,6 +98,8 @@ export const ListingPageComponent = props => {
     fetchStoreProductsInProgress,
     fetchStoreProductsError,
     linkedStore,
+    fetchLinkedStoreInProgress,
+    fetchLinkedStoreFinished,
     sendInquiryInProgress,
     sendInquiryError,
     history,
@@ -208,22 +210,47 @@ export const ListingPageComponent = props => {
   const hasMoreStoreProducts = visibleProducts < filteredStoreProducts.length;
   const isStoreListing = publicData?.listingType === 'tienda';
   const isProductListing = publicData?.listingType === 'productos';
+  const isServiceListing = publicData?.listingType === 'servicios';
 
-  const whatsappSourceListing = isStoreListing ? currentListing : linkedStore;
+  const currentMetadata = currentListing?.attributes?.metadata || {};
 
-  const clientifyContactId =
-    whatsappSourceListing?.attributes?.metadata?.clientifyContactId || '';
+  const listingUsesLinkedStore = isProductListing || isServiceListing;
 
-  const whatsappRaw =
-    whatsappSourceListing?.attributes?.publicData?.whatsappComercio ||
-    whatsappSourceListing?.attributes?.metadata?.clientifyPhone ||
-    '';
+  const listingHasWhatsappMetadata =
+    listingUsesLinkedStore && Boolean(currentMetadata.clientifyPhone);
+
+  const whatsappSourceListing = isStoreListing
+    ? currentListing
+    : listingHasWhatsappMetadata
+      ? currentListing
+      : linkedStore;
+
+  const clientifyContactId = listingUsesLinkedStore
+    ? currentMetadata.clientifyContactId ||
+      linkedStore?.attributes?.metadata?.clientifyContactId ||
+      ''
+    : currentMetadata.clientifyContactId || '';
+
+  const whatsappRaw = listingUsesLinkedStore
+    ? currentMetadata.clientifyPhone ||
+      linkedStore?.attributes?.publicData?.whatsappComercio ||
+      linkedStore?.attributes?.metadata?.clientifyPhone ||
+      ''
+    : currentListing?.attributes?.publicData?.whatsappComercio ||
+      currentMetadata.clientifyPhone ||
+      '';
 
   const whatsappPhone = String(whatsappRaw).replace(/\D/g, '');
 
+  const whatsappStoreName = isProductListing
+    ? currentMetadata.clientifyStoreName ||
+      linkedStore?.attributes?.title ||
+      ''
+    : '';
+
   const whatsappMessage = isProductListing
-    ? `Hola, vengo de GeoPetshop. Quería consultar por ${title}.`
-    : 'Hola, vengo de GeoPetshop. Quería hacer una consulta.';
+    ? `Hola ${whatsappStoreName}, vi ${title} en GeoPetShop. ¿Tienen stock?`
+    : 'Hola, los encontré en GeoPetShop y quería hacer una consulta.';
 
 useEffect(() => {
   if (!isStoreListing && !isProductListing) {
@@ -556,7 +583,9 @@ useEffect(() => {
               whatsappProductoListingId={isProductListing ? currentListing?.id?.uuid : null}
               whatsappProductoNombre={isProductListing ? title : null}
               whatsappOrigen={isProductListing ? 'producto' : 'comercio'}
-	      whatsappClientifyContactId={clientifyContactId}
+              whatsappClientifyContactId={clientifyContactId}
+              whatsappLookupInProgress={fetchLinkedStoreInProgress}
+              whatsappLookupFinished={fetchLinkedStoreFinished}
             />
           </div>
         </div>
@@ -611,6 +640,8 @@ const ListingPage = props => {
     fetchStoreProductsInProgress,
     fetchStoreProductsError,
     linkedStore,
+    fetchLinkedStoreInProgress,
+    fetchLinkedStoreFinished,
     monthlyTimeSlots,
     timeSlotsForDate,
     sendInquiryInProgress,
@@ -685,6 +716,8 @@ const ListingPage = props => {
       fetchStoreProductsInProgress={fetchStoreProductsInProgress}
       fetchStoreProductsError={fetchStoreProductsError}
       linkedStore={linkedStore}
+      fetchLinkedStoreInProgress={fetchLinkedStoreInProgress}
+      fetchLinkedStoreFinished={fetchLinkedStoreFinished}
       monthlyTimeSlots={monthlyTimeSlots}
       timeSlotsForDate={timeSlotsForDate}
       lineItems={lineItems}

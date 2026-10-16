@@ -329,3 +329,68 @@
 .mobileCtaStack {
   gap: 8px;
 }
+
+/* GPS WhatsApp CTA mobile */
+.mobileWhatsappButton {
+  min-height: 42px;
+  padding: 8px 14px;
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.whatsappButtonWaiting {
+  cursor: default;
+
+  &:hover,
+  &:focus {
+    background-color: #25d366;
+  }
+}
+
+.whatsappButtonDisabled {
+  background-color: #b8b8b8;
+  cursor: default;
+
+  &:hover,
+  &:focus {
+    background-color: #b8b8b8;
+  }
+}
+
+.mobileGeoPetshopLink {
+  appearance: none;
+  width: 100%;
+  padding: 2px 8px;
+  border: 0;
+  background: transparent;
+  font: inherit;
+  font-size: 13px;
+  line-height: 18px;
+  font-weight: var(--fontWeightSemiBold);
+  text-align: center;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.mobileGeoPetshopLink:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+@media (--viewportMedium) {
+  .mobileWhatsappButton {
+    min-height: 48px;
+    padding: 12px 20px;
+    font-size: 16px;
+    line-height: 24px;
+  }
+
+  .mobileGeoPetshopLink {
+    font-size: 14px;
+    line-height: 20px;
+  }
+}
+
+.whatsappButtonDisabled {
+  cursor: not-allowed;
+}

@@ -328,6 +328,8 @@ const OrderPanel = props => {
     whatsappProductoNombre,
     whatsappOrigen,
     whatsappClientifyContactId,
+    whatsappLookupInProgress,
+    whatsappLookupFinished,
   } = props;
 
   const publicData = listing?.attributes?.publicData || {};
@@ -336,10 +338,30 @@ const OrderPanel = props => {
 
   const normalizedWhatsAppPhone = String(whatsappPhone || '').replace(/\D/g, '');
   const whatsappUrl = normalizedWhatsAppPhone
-    ? `https://wa.me/${normalizedWhatsAppPhone}?text=${encodeURIComponent(
-        whatsappMessage || 'Hola, vengo de GeoPetshop.'
-      )}`
+    ? 'https' +
+      '://wa.me/' +
+      normalizedWhatsAppPhone +
+      '?text=' +
+      encodeURIComponent(whatsappMessage || 'Hola, vengo de GeoPetshop.')
     : null;
+
+  const isProductListing = listingType === 'productos';
+  const isServiceListing = listingType === 'servicios';
+  const isWhatsappListing =
+    isProductListing || isServiceListing || listingType === 'tienda';
+
+  const whatsappWaiting =
+    isWhatsappListing &&
+    !whatsappUrl &&
+    !whatsappLookupFinished;
+
+  const whatsappUnavailable =
+    isWhatsappListing &&
+    !whatsappUrl &&
+    whatsappLookupFinished;
+
+  const showWhatsappButton =
+    !!whatsappUrl || whatsappWaiting || whatsappUnavailable;
 
   const handleWhatsAppClick = () => {
     const payload = {
@@ -580,27 +602,42 @@ const OrderPanel = props => {
           />
         ) : showInquiryForm ? (
           <>
-            {whatsappUrl ? (
-              <a
-                className={css.whatsappButton}
-                href={whatsappUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={handleWhatsAppClick}
-              >
-                <WhatsAppIcon />
-                <span>Consultar por WhatsApp</span>
-              </a>
+            {showWhatsappButton ? (
+              whatsappUrl ? (
+                <a
+                  className={css.whatsappButton}
+                  href={whatsappUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={handleWhatsAppClick}
+                >
+                  <WhatsAppIcon />
+                  <span>Consultar por WhatsApp</span>
+                </a>
+              ) : (
+                <div
+                  className={classNames(
+                    css.whatsappButton,
+                    whatsappUnavailable ? css.whatsappButtonDisabled : css.whatsappButtonWaiting
+                  )}
+                  aria-disabled="true"
+                >
+                  <WhatsAppIcon />
+                  <span>
+                    {whatsappUnavailable ? 'WhatsApp no disponible' : 'Consultar por WhatsApp'}
+                  </span>
+                </div>
+              )
             ) : null}
 
-            <div className={whatsappUrl ? css.geoPetshopInquiryForm : undefined}>
+            <div className={showWhatsappButton ? css.geoPetshopInquiryForm : undefined}>
               <InquiryWithoutPaymentForm
                 formId="OrderPanelInquiryForm"
                 onSubmit={onSubmit}
                 finePrintComponent={SubmitFinePrint}
                 isOwnListing={isOwnListing}
                 submitButtonText="Enviar consulta en GeoPetshop"
-                compact={!!whatsappUrl}
+                compact={showWhatsappButton}
               />
             </div>
           </>
@@ -640,21 +677,37 @@ const OrderPanel = props => {
           <div className={css.closedListingButton}>
             <FormattedMessage id="OrderPanel.closedListingButtonText" />
           </div>
-        ) : whatsappUrl && showInquiryForm ? (
+        ) : showWhatsappButton && (showInquiryForm || isProductListing) ? (
           <div className={css.mobileCtaStack}>
-            <a
-              className={css.whatsappButton}
-              href={whatsappUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={handleWhatsAppClick}
-            >
-              <WhatsAppIcon />
-              <span>Consultar por WhatsApp</span>
-            </a>
+            {whatsappUrl ? (
+              <a
+                className={classNames(css.whatsappButton, css.mobileWhatsappButton)}
+                href={whatsappUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={handleWhatsAppClick}
+              >
+                <WhatsAppIcon />
+                <span>Consultar por WhatsApp</span>
+              </a>
+            ) : (
+              <div
+                className={classNames(
+                  css.whatsappButton,
+                  css.mobileWhatsappButton,
+                  whatsappUnavailable ? css.whatsappButtonDisabled : css.whatsappButtonWaiting
+                )}
+              >
+                <WhatsAppIcon />
+                <span>
+                  {whatsappUnavailable ? 'WhatsApp no disponible' : 'Consultar por WhatsApp'}
+                </span>
+              </div>
+            )}
 
-            <PrimaryButton
-              id={ORDER_PANEL_SUBMIT_BUTTON_ID}
+            <button
+              type="button"
+              className={css.mobileGeoPetshopLink}
               onClick={handleSubmit(
                 isOwnListing,
                 isClosed,
@@ -665,8 +718,20 @@ const OrderPanel = props => {
               )}
               disabled={isOutOfStock}
             >
-              Enviar consulta por GeoPetshop
-            </PrimaryButton>
+              Enviar consulta por GeoPetShop
+            </button>
+          </div>
+        ) : !listingType ? (
+          <div
+            className={classNames(
+              css.whatsappButton,
+              css.mobileWhatsappButton,
+              css.whatsappButtonWaiting
+            )}
+            aria-disabled="true"
+          >
+            <WhatsAppIcon />
+            <span>Consultar por WhatsApp</span>
           </div>
         ) : (
           <PrimaryButton
