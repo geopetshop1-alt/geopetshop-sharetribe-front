@@ -873,3 +873,67 @@
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }
+
+/* Reclamo de ficha (GPS-R1): bloque discreto en fichas de tienda */
+.claimListingSection {
+  margin-top: 24px;
+  margin-bottom: 36px;
+  padding: 18px;
+  border: 1px solid var(--colorGrey100);
+  border-radius: var(--borderRadiusMedium);
+  background-color: var(--colorGrey50);
+
+  @media (--viewportMedium) {
+    margin-top: 32px;
+    margin-bottom: 40px;
+    padding: 24px;
+  }
+}
+
+.claimListingTitle {
+  margin: 0;
+  padding: 0;
+  font-weight: var(--fontWeightBold);
+  font-size: 16px;
+  line-height: 24px;
+}
+
+.claimListingText {
+  margin: 6px 0 18px 0;
+  padding: 0;
+  color: var(--colorGrey700);
+  font-size: 15px;
+  line-height: 24px;
+
+  @media (--viewportMedium) {
+    margin: 8px 0 16px 0;
+  }
+}
+
+.claimListingButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
+  padding: 9px 18px;
+  border: 1px solid var(--marketplaceColor);
+  border-radius: var(--borderRadiusMedium);
+  background-color: var(--colorWhite);
+  color: var(--marketplaceColor);
+  font-weight: var(--fontWeightSemiBold);
+  font-size: 15px;
+  line-height: 24px;
+  text-decoration: none;
+
+  &:hover,
+  &:focus {
+    background-color: var(--marketplaceColor);
+    color: var(--colorWhite);
+    text-decoration: none;
+  }
+
+  @media (--viewportMedium) {
+    min-height: 48px;
+    padding: 11px 24px;
+  }
+}
