@@ -52,6 +52,7 @@ import SectionHero from './SectionHero';
 import SectionReviews from './SectionReviews';
 import SectionAuthorMaybe from './SectionAuthorMaybe';
 import SectionMapMaybe from './SectionMapMaybe';
+import SectionClaimListingMaybe from './SectionClaimListingMaybe';
 import CustomListingFields from './CustomListingFields';
 import Notifications from './Notifications/Notifications';
 import ListingPageAccessWrapper from './ListingPageAccessWrapper';
@@ -321,6 +322,8 @@ export const ListingPageComponent = props => {
               categoryConfiguration={config.categoryConfiguration}
               intl={intl}
             />
+
+            <SectionClaimListingMaybe listing={currentListing} isOwnListing={isOwnListing} />
 
             <SectionMapMaybe
               geolocation={geolocation}

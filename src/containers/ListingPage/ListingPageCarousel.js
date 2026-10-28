@@ -55,6 +55,7 @@ import Notifications from './Notifications/Notifications';
 import SectionReviews from './SectionReviews';
 import SectionAuthorMaybe from './SectionAuthorMaybe';
 import SectionMapMaybe from './SectionMapMaybe';
+import SectionClaimListingMaybe from './SectionClaimListingMaybe';
 import SectionGallery from './SectionGallery';
 import CustomListingFields from './CustomListingFields';
 import ListingPageAccessWrapper from './ListingPageAccessWrapper';
@@ -438,6 +439,8 @@ useEffect(() => {
               intl={intl}
               excludedFieldKeys={['whatsappComercio']}
             />
+
+            <SectionClaimListingMaybe listing={currentListing} isOwnListing={isOwnListing} />
 
             {isStoreListing && fetchStoreProductsInProgress ? (
               <section style={{ marginTop: 40, marginBottom: 40 }}>
