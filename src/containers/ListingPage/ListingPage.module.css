@@ -876,16 +876,14 @@
 
 /* Reclamo de ficha (GPS-R1): bloque discreto en fichas de tienda */
 .claimListingSection {
-  margin-top: 24px;
-  margin-bottom: 36px;
+  margin: 24px 24px 36px 24px;
   padding: 18px;
   border: 1px solid var(--colorGrey100);
   border-radius: var(--borderRadiusMedium);
   background-color: var(--colorGrey50);
 
   @media (--viewportMedium) {
-    margin-top: 32px;
-    margin-bottom: 40px;
+    margin: 32px 0 40px 0;
     padding: 24px;
   }
 }
