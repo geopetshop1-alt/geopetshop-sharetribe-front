@@ -9,7 +9,12 @@ const router = express.Router();
 
 const androidAssetLinks = [
   {
-    relation: ['delegate_permission/common.handle_all_urls'],
+    // handle_all_urls: links de geopetshop.com abren la app.
+    // get_login_creds: el celular comparte contraseñas guardadas entre el sitio y la app.
+    relation: [
+      'delegate_permission/common.handle_all_urls',
+      'delegate_permission/common.get_login_creds',
+    ],
     target: {
       namespace: 'android_app',
       package_name: 'com.geopetshop.app',
@@ -29,6 +34,10 @@ const appleAppSiteAssociation = {
         paths: ['/stonygotchi', '/stonygotchi/*', '/p/app-confirmada', '/p/app-confirmada/*'],
       },
     ],
+  },
+  // Autorrelleno de contraseñas en iOS (llavero compartido entre el sitio y la app).
+  webcredentials: {
+    apps: ['V59Z742W72.com.geopetshop.app'],
   },
 };
 
