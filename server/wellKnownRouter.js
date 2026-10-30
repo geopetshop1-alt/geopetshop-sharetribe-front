@@ -20,6 +20,9 @@ const androidAssetLinks = [
       package_name: 'com.geopetshop.app',
       sha256_cert_fingerprints: [
         '86:07:C4:7F:F6:44:03:6D:29:63:D7:E4:7D:29:B6:E4:E3:E3:C6:96:09:B6:DE:B1:7C:BA:24:6B:72:1A:E1:C3',
+        // Clave de firma de Google Play (Play Console > Firma de aplicaciones).
+        // Sin esta, los links y el autorrelleno no andan en la app bajada de Play.
+        'B2:11:16:B4:A0:B5:63:2D:05:E1:31:D7:FF:82:14:49:A4:3F:59:E4:E3:DA:C7:D1:6F:AC:D8:07:F5:33:30:72',
       ],
     },
   },
