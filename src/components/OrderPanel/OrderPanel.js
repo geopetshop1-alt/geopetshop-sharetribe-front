@@ -25,7 +25,7 @@ import {
 import { formatMoney } from '../../util/currency';
 import { createSlug, parse, stringify } from '../../util/urlHelpers';
 import { userDisplayNameAsString } from '../../util/data';
-import { trackWhatsAppClick } from '../../util/api';
+import { notifyWhatsAppClickToN8n, trackWhatsAppClick } from '../../util/api';
 import {
   OFFER,
   REQUEST,
@@ -377,6 +377,12 @@ const OrderPanel = props => {
 
     trackWhatsAppClick(payload).catch(error => {
       console.error('WhatsApp tracking failed:', error);
+    });
+
+    // GPS-W1: indicador "Consultas por WhatsApp" del tablero GPS-M1.
+    notifyWhatsAppClickToN8n({
+      fichaId: listing?.id?.uuid || whatsappProductoListingId || whatsappComercioListingId,
+      comercioNombre: whatsappComercioNombre || listing?.attributes?.title,
     });
   };
 
