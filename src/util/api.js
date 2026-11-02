@@ -152,6 +152,41 @@ export const deleteUserAccount = body => {
   return post('/api/delete-account', body);
 };
 
+// Aviso a n8n (GPS-W1 → tabla gps_wa_clics) cuando un tutor toca "Consultar por WhatsApp".
+// Alimenta el indicador principal del tablero GPS-M1.
+//
+// Va en paralelo al link de wa.me y nunca lo bloquea: sendBeacon se encola en el navegador
+// y sobrevive a la navegación. Si falla, la consulta igual llega al comercio.
+const GPS_WA_CLIC_WEBHOOK_URL = 'https://lautaroandacollosa.app.n8n.cloud/webhook/gps-wa-clic';
+
+/**
+ * Notify n8n (GPS-W1) that a WhatsApp button was clicked on a listing page.
+ *
+ * @param {Object} params
+ * @param {String} params.fichaId UUID of the listing the user is viewing
+ * @param {String} params.comercioNombre store name
+ */
+export const notifyWhatsAppClickToN8n = ({ fichaId, comercioNombre }) => {
+  if (typeof window === 'undefined' || !fichaId) {
+    return;
+  }
+
+  const url =
+    `${GPS_WA_CLIC_WEBHOOK_URL}?ficha=${encodeURIComponent(fichaId)}` +
+    `&comercio=${encodeURIComponent(String(comercioNombre || '').slice(0, 120))}` +
+    '&o=ficha';
+
+  try {
+    if (window.navigator && typeof window.navigator.sendBeacon === 'function') {
+      window.navigator.sendBeacon(url);
+    } else {
+      window.fetch(url, { method: 'POST', mode: 'no-cors', keepalive: true }).catch(() => {});
+    }
+  } catch (e) {
+    // Nunca romper el clic por el aviso.
+  }
+};
+
 export const trackWhatsAppClick = body => {
   return window.fetch(`${apiBaseUrl()}/api/whatsapp-click`, {
     method: 'POST',

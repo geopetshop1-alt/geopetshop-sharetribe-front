@@ -147,9 +147,14 @@ exports.csp = (reportUri, reportOnly) => {
   // const { imgSrc = [self] } = defaultDirectives;
   // const exampleImgSrc = imgSrc.concat('my-custom-domain.example.com');
 
+  // n8n de Andacollo: aviso de clic en "Consultar por WhatsApp" (GPS-W1)
+  const { connectSrc = [self] } = defaultDirectives;
+  const customConnectSrc = connectSrc.concat('lautaroandacollosa.app.n8n.cloud');
+
   const customDirectives = {
     // Example: Add custom directive override
     // imgSrc: exampleImgSrc,
+    connectSrc: customConnectSrc,
   };
 
   // ================ END CUSTOM CSP URLs ================ //
