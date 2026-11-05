@@ -148,13 +148,22 @@ exports.csp = (reportUri, reportOnly) => {
   // const exampleImgSrc = imgSrc.concat('my-custom-domain.example.com');
 
   // n8n de Andacollo: aviso de clic en "Consultar por WhatsApp" (GPS-W1)
-  const { connectSrc = [self] } = defaultDirectives;
-  const customConnectSrc = connectSrc.concat('lautaroandacollosa.app.n8n.cloud');
+  // Píxel de Meta: script en connect.facebook.net, eventos a www.facebook.com
+  const metaPixelDomains = ['connect.facebook.net', 'www.facebook.com'];
+
+  const { connectSrc = [self], scriptSrc = [self], imgSrc = [self] } = defaultDirectives;
+  const customConnectSrc = connectSrc
+    .concat('lautaroandacollosa.app.n8n.cloud')
+    .concat(metaPixelDomains);
+  const customScriptSrc = scriptSrc.concat('connect.facebook.net');
+  const customImgSrc = imgSrc.concat('www.facebook.com');
 
   const customDirectives = {
     // Example: Add custom directive override
     // imgSrc: exampleImgSrc,
     connectSrc: customConnectSrc,
+    scriptSrc: customScriptSrc,
+    imgSrc: customImgSrc,
   };
 
   // ================ END CUSTOM CSP URLs ================ //

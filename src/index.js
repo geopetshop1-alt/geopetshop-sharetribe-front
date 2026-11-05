@@ -25,6 +25,7 @@ import './styles/marketplaceDefaults.css';
 import appSettings from './config/settings';
 import defaultConfig from './config/configDefault';
 import { LoggingAnalyticsHandler, GoogleAnalyticsHandler } from './analytics/handlers';
+import { META_PIXEL_ID, MetaPixelHandler, initMetaPixel } from './analytics/metaPixel';
 import configureStore from './store';
 
 // Utils
@@ -115,6 +116,11 @@ const setupAnalyticsHandlers = googleAnalyticsId => {
     }
   }
 
+  // Píxel de Meta (GeoPetShop): PageView en cada navegación interna
+  if (META_PIXEL_ID) {
+    handlers.push(new MetaPixelHandler());
+  }
+
   return handlers;
 };
 
@@ -143,6 +149,8 @@ if (typeof window !== 'undefined') {
   const googleAnalyticsIdFromSSR = initialState?.hostedAssets?.googleAnalyticsId;
   const googleAnalyticsId = googleAnalyticsIdFromSSR || process.env.REACT_APP_GOOGLE_ANALYTICS_ID;
   const analyticsHandlers = setupAnalyticsHandlers(googleAnalyticsId);
+  // Píxel de Meta: carga el script y manda el PageView inicial
+  initMetaPixel();
   const store = configureStore({ initialState, sdk, analyticsHandlers });
 
   require('./util/polyfills');
