@@ -26,6 +26,7 @@ import { formatMoney } from '../../util/currency';
 import { createSlug, parse, stringify } from '../../util/urlHelpers';
 import { userDisplayNameAsString } from '../../util/data';
 import { notifyWhatsAppClickToN8n, trackWhatsAppClick } from '../../util/api';
+import { trackMetaPixelEvent } from '../../analytics/metaPixel';
 import {
   OFFER,
   REQUEST,
@@ -377,6 +378,12 @@ const OrderPanel = props => {
 
     trackWhatsAppClick(payload).catch(error => {
       console.error('WhatsApp tracking failed:', error);
+    });
+
+    // Píxel de Meta: la consulta por WhatsApp es la conversión del sitio.
+    trackMetaPixelEvent('Contact', {
+      content_name: whatsappProductoNombre || whatsappComercioNombre || undefined,
+      content_category: whatsappProductoListingId ? 'producto' : 'comercio',
     });
 
     // GPS-W1: indicador "Consultas por WhatsApp" del tablero GPS-M1.
