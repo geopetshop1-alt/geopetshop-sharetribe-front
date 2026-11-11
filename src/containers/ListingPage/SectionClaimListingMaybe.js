@@ -12,6 +12,21 @@ export const CLAIM_LISTING_BASE_URL =
 export const buildClaimListingUrl = listingId =>
   `${CLAIM_LISTING_BASE_URL}?ficha=${encodeURIComponent(listingId)}`;
 
+// El formulario se abre recién cuando una persona hace clic. Si fuera un <a href>,
+// los robots que recorren el sitio (Google, SERanking, etc.) siguen el link en
+// cada ficha de tienda y cada visita gasta una ejecución de n8n: el 7 y 8/11
+// hubo unas 5.700. Un botón no deja el link en el HTML, así que no lo siguen.
+export const openClaimListingForm = listingId => {
+  if (typeof window === 'undefined') {
+    return;
+  }
+  const opened = window.open(buildClaimListingUrl(listingId), '_blank', 'noopener,noreferrer');
+  if (!opened) {
+    // Si el navegador bloquea la pestaña nueva, abrir en la misma.
+    window.location.assign(buildClaimListingUrl(listingId));
+  }
+};
+
 /**
  * Decide si la ficha se puede reclamar desde la web.
  *
@@ -60,14 +75,13 @@ const SectionClaimListingMaybe = props => {
         Reclamá esta ficha para administrarla. Te mandamos un WhatsApp al número del comercio para
         confirmar que sos vos.
       </p>
-      <a
+      <button
+        type="button"
         className={css.claimListingButton}
-        href={buildClaimListingUrl(listing.id.uuid)}
-        target="_blank"
-        rel="noopener noreferrer"
+        onClick={() => openClaimListingForm(listing.id.uuid)}
       >
         Reclamar esta ficha
-      </a>
+      </button>
     </section>
   );
 };
