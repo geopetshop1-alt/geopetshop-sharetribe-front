@@ -922,6 +922,8 @@
   font-size: 15px;
   line-height: 24px;
   text-decoration: none;
+  cursor: pointer;
+  width: auto;
 
   &:hover,
   &:focus {

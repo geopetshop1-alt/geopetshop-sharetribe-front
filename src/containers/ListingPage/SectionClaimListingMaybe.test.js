@@ -1,5 +1,6 @@
 import React from 'react';
 import '@testing-library/jest-dom';
+import { fireEvent } from '@testing-library/react';
 
 import { renderWithProviders as render } from '../../util/testHelpers';
 
@@ -61,13 +62,22 @@ describe('isClaimableListing', () => {
 });
 
 describe('SectionClaimListingMaybe', () => {
-  it('muestra el botón con el link al formulario de la ficha', () => {
-    const { getByRole } = render(
+  it('muestra un botón (no un link que sigan los robots) que abre el formulario de la ficha', () => {
+    const openSpy = jest.spyOn(window, 'open').mockImplementation(() => ({}));
+    const { getByRole, queryByRole, container } = render(
       <SectionClaimListingMaybe listing={storeListing()} isOwnListing={false} />
     );
-    const link = getByRole('link', { name: 'Reclamar esta ficha' });
-    expect(link).toHaveAttribute('href', buildClaimListingUrl(LISTING_ID));
-    expect(link.getAttribute('href')).toContain(`?ficha=${LISTING_ID}`);
+    expect(queryByRole('link', { name: 'Reclamar esta ficha' })).toBeNull();
+    expect(container.innerHTML).not.toContain('gps-reclamo');
+
+    fireEvent.click(getByRole('button', { name: 'Reclamar esta ficha' }));
+    expect(openSpy).toHaveBeenCalledWith(
+      buildClaimListingUrl(LISTING_ID),
+      '_blank',
+      'noopener,noreferrer'
+    );
+    expect(buildClaimListingUrl(LISTING_ID)).toContain(`?ficha=${LISTING_ID}`);
+    openSpy.mockRestore();
   });
 
   it('no muestra nada en un producto', () => {
@@ -77,6 +87,6 @@ describe('SectionClaimListingMaybe', () => {
         isOwnListing={false}
       />
     );
-    expect(queryByRole('link', { name: 'Reclamar esta ficha' })).toBeNull();
+    expect(queryByRole('button', { name: 'Reclamar esta ficha' })).toBeNull();
   });
 });
