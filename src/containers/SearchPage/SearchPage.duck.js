@@ -10,7 +10,7 @@ import {
   daysBetween,
   getStartOf,
 } from '../../util/dates';
-import { constructQueryParamName, isOriginInUse } from '../../util/search';
+import { constructQueryParamName } from '../../util/search';
 import { hasPermissionToViewData, isUserAuthorized } from '../../util/userHelpers';
 import { parse } from '../../util/urlHelpers';
 import { getReferralParams } from '../../util/webStorageHelpers';
@@ -23,7 +23,9 @@ import { addMarketplaceEntities } from '../../ducks/marketplaceData.duck';
 const RESULT_PAGE_SIZE = 100;
 
 const RESCUE_PAGE_SIZE = 4;
-const RESCUE_NEAREST_MAX_KM = 30;
+// Hasta dónde se busca "el más cercano" cuando en la zona no hay nada.
+// Antes era 30 km y desde zonas sin comercios (ej. Guernica) la persona quedaba en cero.
+const RESCUE_NEAREST_MAX_KM = 150;
 const RESCUE_BRANCHES = ['productos', 'servicios', 'tienda'];
 
 const emptyRescueBlock = branch => ({
@@ -61,10 +63,7 @@ const boundsCenter = bounds => {
   // Mantener el mismo tipo SDK LatLng que ya trae bounds.
   const LatLng = ne.constructor;
 
-  return new LatLng(
-    (ne.lat + sw.lat) / 2,
-    (ne.lng + sw.lng) / 2
-  );
+  return new LatLng((ne.lat + sw.lat) / 2, (ne.lng + sw.lng) / 2);
 };
 
 const distanceKm = (origin, destination) => {
@@ -77,12 +76,26 @@ const distanceKm = (origin, destination) => {
   const lat1 = toRadians(origin.lat);
   const lat2 = toRadians(destination.lat);
 
-  const a =
-    Math.sin(dLat / 2) ** 2 +
-    Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLng / 2) ** 2;
+  const a = Math.sin(dLat / 2) ** 2 + Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLng / 2) ** 2;
 
   return 2 * earthRadiusKm * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 };
+
+// Ordena publicaciones por distancia a origin. Las que no tienen ubicación van al final.
+const sortByDistance = (listings, origin) =>
+  listings
+    .map((listing, index) => ({
+      listing,
+      index,
+      distance: distanceKm(origin, listing?.attributes?.geolocation),
+    }))
+    .sort((a, b) => {
+      if (a.distance === null && b.distance === null) return a.index - b.index;
+      if (a.distance === null) return 1;
+      if (b.distance === null) return -1;
+      return a.distance - b.distance;
+    })
+    .map(item => item.listing);
 
 const responseListings = response =>
   (response?.data?.data || []).filter(
@@ -371,10 +384,15 @@ const searchListingsPayloadCreator = ({ searchParams, config }, thunkAPI) => {
   const stockMaybe = stockFilters(datesMaybe);
   const seatsMaybe = seatsSearchParams(seats, datesMaybe);
   // Sharetribe ordena por distancia cuando se usa origin.
-  // origin no puede combinarse con sort.
-  const sortMaybe = searchParams?.origin
-    ? {}
-    : sortSearchParams(sort, searchParams?.keywords !== undefined);
+  // origin no puede combinarse con sort ni con keywords:
+  // - si la persona eligió un orden a mano, gana su orden y se deja de lado origin.
+  // - con keywords se busca sin origin y se ordena por distancia acá (ver más abajo).
+  const hasKeywords = searchParams?.keywords !== undefined;
+  const userPickedSort = !!sort && sort !== config?.search?.sortConfig?.relevanceKey;
+  const originForApi = searchParams?.origin && !userPickedSort && !hasKeywords;
+  const sortLocallyFrom =
+    searchParams?.origin && !userPickedSort && hasKeywords ? searchParams.origin : null;
+  const sortMaybe = originForApi ? {} : sortSearchParams(sort, hasKeywords);
 
   // Filter out potential referral data parameters so that they are not included in the API query
   const { userTypes = [] } = config.user;
@@ -383,6 +401,7 @@ const searchListingsPayloadCreator = ({ searchParams, config }, thunkAPI) => {
     Object.entries(restOfParams).filter(entry => {
       const [key, value] = entry;
 
+      if (key === 'origin' && !originForApi) return false;
       return !validReferralSources.includes(key);
     })
   );
@@ -422,6 +441,10 @@ const searchListingsPayloadCreator = ({ searchParams, config }, thunkAPI) => {
     .then(response => {
       const listingFields = config?.listing?.listingFields;
       const sanitizeConfig = { listingFields };
+
+      if (sortLocallyFrom && Array.isArray(response?.data?.data)) {
+        response.data.data = sortByDistance(response.data.data, sortLocallyFrom);
+      }
 
       dispatch(addMarketplaceEntities(response, sanitizeConfig));
       return response;
@@ -499,7 +522,6 @@ const searchPageSlice = createSlice({
         state.searchInProgress = false;
         state.searchListingsError = action.payload;
       });
-
   },
 });
 
@@ -535,7 +557,10 @@ export const loadData = (params, search, config) => (dispatch, getState, sdk) =>
   });
 
   const { page = 1, address, origin, ...rest } = queryParams;
-  const originMaybe = isOriginInUse(config) && origin ? { origin } : {};
+  // GeoPetShop tiene sortSearchByDistance apagado, así que la búsqueda normal no
+  // pone origin en la URL. Si viene (ej. NearbyFromAd, para quien llega desde
+  // Google Ads), se usa para ordenar por distancia.
+  const originMaybe = origin ? { origin } : {};
 
   const listingTypeVariantMaybe = listingTypePathParam
     ? { listingTypePathParam, isListingTypeVariant: true }
@@ -597,10 +622,7 @@ export const loadData = (params, search, config) => (dispatch, getState, sdk) =>
     // Si el usuario sólo geolocalizó y no eligió una rama,
     // tomamos Tiendas como base para determinar cobertura y cercanía.
     const currentBranch =
-      rest.pub_categoryLevel1 ||
-      rest.pub_listingType ||
-      listingTypePathParam ||
-      'tienda';
+      rest.pub_categoryLevel1 || rest.pub_listingType || listingTypePathParam || 'tienda';
 
     const hasGeographicSearch = !!rest.bounds || !!origin;
     const isKnownBranch = RESCUE_BRANCHES.includes(currentBranch);
@@ -728,8 +750,7 @@ export const loadData = (params, search, config) => (dispatch, getState, sdk) =>
       const shouldFindNearestPrimary =
         primaryTotal === 0 && primaryBranch !== 'productos' && !!rescueOrigin;
 
-      const shouldFindNearestSecondary =
-        secondaryTotal === 0 && !!rescueOrigin;
+      const shouldFindNearestSecondary = secondaryTotal === 0 && !!rescueOrigin;
 
       const [nearestPrimaryAction, nearestSecondaryAction] = await Promise.all([
         shouldFindNearestPrimary
