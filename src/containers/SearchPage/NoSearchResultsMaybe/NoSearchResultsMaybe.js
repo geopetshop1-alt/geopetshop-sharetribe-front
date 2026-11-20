@@ -112,6 +112,19 @@ const rescueListingZone = listing => {
   );
 };
 
+const formatKm = distance =>
+  distance < 10 ? distance.toFixed(1).replace('.', ',') : `${Math.round(distance)}`;
+
+const nearestHeadline = item => {
+  const labels = {
+    tienda: 'El petshop más cercano',
+    servicios: 'El servicio más cercano',
+    productos: 'El producto más cercano',
+  };
+  const subject = labels[item.branch] || labels.tienda;
+  return `${subject} está a ${formatKm(item.distanceKm)} km`;
+};
+
 const RescueCards = ({
   listings = [],
   distances = {},
@@ -388,18 +401,41 @@ const NoSearchResultsMaybe = props => {
   const showNearestPrimary = !hasPrimaryInZone && nearestPrimaryListings.length > 0;
   const showNearestSecondary = !hasSecondaryInZone && nearestSecondaryListings.length > 0;
 
+  // Sin comercios en la zona pero con alguno más lejos: nadie queda en cero.
+  // Arriba va la distancia al más cercano y sus fichas; los botones de aviso, abajo.
+  const closestShown =
+    nearestShown
+      .filter(item => typeof item.distanceKm === 'number')
+      .filter(item =>
+        item.branch === primary.branch ? showNearestPrimary : showNearestSecondary
+      )
+      .sort((a, b) => {
+        // Si hay un petshop, manda el petshop aunque un servicio esté más cerca.
+        if (a.branch === 'tienda' && b.branch !== 'tienda') return -1;
+        if (b.branch === 'tienda' && a.branch !== 'tienda') return 1;
+        return a.distanceKm - b.distanceKm;
+      })[0] || null;
+
+  const showClosestHeadline = !hasStoresInZone && !!closestShown;
+
+  const mainTitle = hasStoresInZone
+    ? 'No encontramos una coincidencia exacta'
+    : showClosestHeadline
+    ? nearestHeadline(closestShown)
+    : 'Todavía no tenemos comercios en esta zona';
+
   return (
     <div className={css.rescueRoot}>
       <div className={css.intro}>
-        <h2 className={css.mainTitle}>
-          {hasStoresInZone
-            ? 'No encontramos una coincidencia exacta'
-            : 'Todavía no tenemos comercios en esta zona'}
-        </h2>
+        <h2 className={css.mainTitle}>{mainTitle}</h2>
 
         {hasStoresInZone ? (
           <p className={css.introText}>
             Pero hay otras opciones en esta zona que pueden servirte.
+          </p>
+        ) : showClosestHeadline ? (
+          <p className={css.introText}>
+            Todavía no hay comercios en esta zona. Te mostramos los más cercanos.
           </p>
         ) : null}
       </div>
@@ -431,6 +467,24 @@ const NoSearchResultsMaybe = props => {
             hideTitle
           />
         </div>
+      ) : null}
+
+      {showNearestPrimary ? (
+        <RescueCards
+          listings={nearestPrimaryListings}
+          distances={primary.nearestDistances}
+          branch={primary.branch}
+          isNearest
+        />
+      ) : null}
+
+      {showNearestSecondary ? (
+        <RescueCards
+          listings={nearestSecondaryListings}
+          distances={secondary.nearestDistances}
+          branch={secondary.branch}
+          isNearest
+        />
       ) : null}
 
       {rescue.storesInZoneTotal === 0 ? (
@@ -603,24 +657,6 @@ const NoSearchResultsMaybe = props => {
             )}
           </div>
         </section>
-      ) : null}
-
-      {showNearestPrimary ? (
-        <RescueCards
-          listings={nearestPrimaryListings}
-          distances={primary.nearestDistances}
-          branch={primary.branch}
-          isNearest
-        />
-      ) : null}
-
-      {showNearestSecondary ? (
-        <RescueCards
-          listings={nearestSecondaryListings}
-          distances={secondary.nearestDistances}
-          branch={secondary.branch}
-          isNearest
-        />
       ) : null}
 
       {!hasPrimaryInZone &&

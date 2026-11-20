@@ -34,6 +34,7 @@ import SearchFiltersMobile from './SearchFiltersMobile/SearchFiltersMobile';
 import SortBy from './SortBy/SortBy';
 import SearchResultsPanel from './SearchResultsPanel/SearchResultsPanel';
 import NoSearchResultsMaybe from './NoSearchResultsMaybe/NoSearchResultsMaybe';
+import NearbyFromAd from './NearbyFromAd';
 import SearchPageAccessWrapper from './SearchPageAccessWrapper';
 import SearchErrors from './SearchErrors';
 
@@ -353,6 +354,11 @@ export class SearchPageComponent extends Component {
         noIndex={Boolean(location.search)}
       >
         <TopbarContainer rootClassName={topbarClasses} currentSearchParams={validQueryParams} />
+        <NearbyFromAd
+          location={location}
+          history={this.props.history}
+          routeConfiguration={routeConfiguration}
+        />
         <div id="main-content" className={css.container} role="main">
           <div className={css.searchResultContainer}>
             <SearchFiltersMobile
