@@ -1,6 +1,6 @@
 import { types as sdkTypes } from '../../util/sdkLoader';
 
-import { boundsAroundPoint, isGoogleAdsVisit } from './NearbyFromAd';
+import { boundsAroundPoint, isGoogleAdsVisit, isSearchWithoutZone } from './NearbyFromAd';
 
 const { LatLng } = sdkTypes;
 
@@ -20,6 +20,20 @@ describe('NearbyFromAd', () => {
       expect(isGoogleAdsVisit('?address=CABA')).toBe(false);
       expect(isGoogleAdsVisit('?utm_source=facebook')).toBe(false);
       expect(isGoogleAdsVisit('')).toBe(false);
+    });
+  });
+
+  describe('isSearchWithoutZone', () => {
+    it('detects searches with no zone', () => {
+      expect(isSearchWithoutZone('')).toBe(true);
+      expect(isSearchWithoutZone('?pub_categoryLevel1=tienda')).toBe(true);
+      expect(isSearchWithoutZone('?pub_categoryLevel1=productos')).toBe(true);
+    });
+
+    it('leaves searches with a zone or keywords alone', () => {
+      expect(isSearchWithoutZone('?address=CABA&bounds=-34.53,-58.33,-34.71,-58.53')).toBe(false);
+      expect(isSearchWithoutZone('?origin=-34.9,-58.3')).toBe(false);
+      expect(isSearchWithoutZone('?keywords=stonecat')).toBe(false);
     });
   });
 
