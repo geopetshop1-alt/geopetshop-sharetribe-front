@@ -6,6 +6,7 @@ import classNames from 'classnames';
 // Utils
 import { FormattedMessage } from '../../util/reactIntl';
 import { LISTING_STATE_CLOSED, propTypes } from '../../util/types';
+import { petStoreSchemaFields } from '../../util/storeSchema';
 import { trackListingView } from '../../util/api';
 import { OFFER, REQUEST } from '../../transactions/transaction';
 
@@ -366,12 +367,18 @@ useEffect(() => {
       twitterImages={twitterImages}
       {...noIndexMaybe}
       schema={{
-        '@context': 'http://schema.org',
+        '@context': 'https://schema.org',
         '@type': isStoreListing ? 'PetStore' : 'Product',
         description: description,
         name: schemaTitle,
         image: schemaImages,
         url: productURL,
+        ...(isStoreListing
+          ? petStoreSchemaFields({
+              address: publicData?.location?.address,
+              phone: whatsappPhone,
+            })
+          : {}),
         ...(geolocation
           ? {
               geo: {
