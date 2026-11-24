@@ -6,7 +6,7 @@ import classNames from 'classnames';
 // Utils
 import { FormattedMessage } from '../../util/reactIntl';
 import { LISTING_STATE_CLOSED, propTypes } from '../../util/types';
-import { petStoreSchemaFields } from '../../util/storeSchema';
+import { petStoreSchemaFields, storeAddressFromListing } from '../../util/storeSchema';
 import { trackListingView } from '../../util/api';
 import { OFFER, REQUEST } from '../../transactions/transaction';
 
@@ -375,7 +375,7 @@ useEffect(() => {
         url: productURL,
         ...(isStoreListing
           ? petStoreSchemaFields({
-              address: publicData?.location?.address,
+              address: storeAddressFromListing(currentListing),
               phone: whatsappPhone,
             })
           : {}),

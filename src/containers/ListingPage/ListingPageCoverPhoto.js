@@ -6,7 +6,7 @@ import classNames from 'classnames';
 // Utils
 import { FormattedMessage } from '../../util/reactIntl';
 import { LISTING_STATE_CLOSED, propTypes } from '../../util/types';
-import { petStoreSchemaFields } from '../../util/storeSchema';
+import { petStoreSchemaFields, storeAddressFromListing } from '../../util/storeSchema';
 import { OFFER, REQUEST } from '../../transactions/transaction';
 
 // Global ducks (for Redux actions and thunks)
@@ -261,7 +261,7 @@ export const ListingPageComponent = props => {
         url: productURL,
         ...(isStoreListing
           ? petStoreSchemaFields({
-              address: publicData?.location?.address,
+              address: storeAddressFromListing(currentListing),
               phone: publicData?.whatsappComercio || metadata?.clientifyPhone,
             })
           : {}),

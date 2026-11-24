@@ -85,6 +85,25 @@ export const formatStoreTelephone = phone => {
 };
 
 /**
+ * Dirección de la ficha. Las fichas de comercio la guardan en distintos lugares según cómo se
+ * cargaron: la de Google (con código postal y provincia) en metadata.googleFormattedAddress,
+ * la cargada a mano en publicData.address.fullAddress y la del template en
+ * publicData.location.address.
+ *
+ * @param {Object} listing ficha
+ * @returns {String|null}
+ */
+export const storeAddressFromListing = listing => {
+  const { publicData = {}, metadata = {} } = listing?.attributes || {};
+  return (
+    metadata.googleFormattedAddress ||
+    publicData.address?.fullAddress ||
+    publicData.location?.address ||
+    null
+  );
+};
+
+/**
  * Campos extra del PetStore: address, telephone y areaServed.
  *
  * @param {Object} params
