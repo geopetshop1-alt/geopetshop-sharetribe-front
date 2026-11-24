@@ -1,4 +1,9 @@
-import { parseStoreAddress, formatStoreTelephone, petStoreSchemaFields } from './storeSchema';
+import {
+  parseStoreAddress,
+  formatStoreTelephone,
+  petStoreSchemaFields,
+  storeAddressFromListing,
+} from './storeSchema';
 
 describe('storeSchema', () => {
   it('parsea una dirección de provincia', () => {
@@ -65,5 +70,33 @@ describe('storeSchema', () => {
 
   it('no inventa campos que faltan', () => {
     expect(petStoreSchemaFields({ address: null, phone: '' })).toEqual({});
+  });
+
+  it('toma la dirección de Google primero y si no la cargada', () => {
+    const listing = {
+      attributes: {
+        publicData: { address: { fullAddress: 'C. 57 2976, Necochea, Buenos Aires, Argentina' } },
+        metadata: {
+          googleFormattedAddress:
+            'C. 57 2976, B7630GQQ Necochea, Provincia de Buenos Aires, Argentina',
+        },
+      },
+    };
+    expect(storeAddressFromListing(listing)).toBe(
+      'C. 57 2976, B7630GQQ Necochea, Provincia de Buenos Aires, Argentina'
+    );
+    delete listing.attributes.metadata.googleFormattedAddress;
+    expect(storeAddressFromListing(listing)).toBe('C. 57 2976, Necochea, Buenos Aires, Argentina');
+    expect(parseStoreAddress('C. 57 2976, Necochea, Buenos Aires, Argentina')).toEqual({
+      streetAddress: 'C. 57 2976',
+      postalCode: null,
+      addressLocality: 'Necochea',
+      addressRegion: 'Buenos Aires',
+      addressCountry: 'AR',
+    });
+    expect(
+      parseStoreAddress('C. 57 2976, B7630GQQ Necochea, Provincia de Buenos Aires, Argentina')
+        .postalCode
+    ).toBe('B7630GQQ');
   });
 });
