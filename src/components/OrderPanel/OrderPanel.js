@@ -27,6 +27,7 @@ import { createSlug, parse, stringify } from '../../util/urlHelpers';
 import { userDisplayNameAsString } from '../../util/data';
 import { notifyWhatsAppClickToN8n, trackWhatsAppClick } from '../../util/api';
 import { trackMetaPixelEvent } from '../../analytics/metaPixel';
+import { trackGa4Event } from '../../analytics/googleAnalytics';
 import {
   OFFER,
   REQUEST,
@@ -384,6 +385,13 @@ const OrderPanel = props => {
     trackMetaPixelEvent('Contact', {
       content_name: whatsappProductoNombre || whatsappComercioNombre || undefined,
       content_category: whatsappProductoListingId ? 'producto' : 'comercio',
+    });
+
+    // GA4: misma conversión, para importarla en Google Ads.
+    trackGa4Event('consulta_whatsapp', {
+      comercio: whatsappComercioNombre || undefined,
+      producto: whatsappProductoNombre || undefined,
+      tipo: whatsappProductoListingId ? 'producto' : 'comercio',
     });
 
     // GPS-W1: indicador "Consultas por WhatsApp" del tablero GPS-M1.
