@@ -6,6 +6,7 @@ import classNames from 'classnames';
 // Utils
 import { FormattedMessage } from '../../util/reactIntl';
 import { LISTING_STATE_CLOSED, propTypes } from '../../util/types';
+import { petStoreSchemaFields } from '../../util/storeSchema';
 import { OFFER, REQUEST } from '../../transactions/transaction';
 
 // Global ducks (for Redux actions and thunks)
@@ -252,12 +253,18 @@ export const ListingPageComponent = props => {
       twitterImages={twitterImages}
       {...noIndexMaybe}
       schema={{
-        '@context': 'http://schema.org',
+        '@context': 'https://schema.org',
         '@type': isStoreListing ? 'PetStore' : 'Product',
         description: description,
         name: schemaTitle,
         image: schemaImages,
         url: productURL,
+        ...(isStoreListing
+          ? petStoreSchemaFields({
+              address: publicData?.location?.address,
+              phone: publicData?.whatsappComercio || metadata?.clientifyPhone,
+            })
+          : {}),
         ...(geolocation
           ? {
               geo: {

@@ -186,9 +186,12 @@ export const DesktopReviews = props => {
 export const CustomUserFields = props => {
   const { publicData, metadata, userFieldConfig, intl } = props;
 
+  // Datos internos (ej. "Id contacto Clientify") nunca se muestran en el perfil público.
+  const isInternalUserField = fieldConfig => /clientify/i.test(fieldConfig?.key || '');
   const shouldPickUserField = fieldConfig =>
     ['public', 'metadata'].includes(fieldConfig?.scope) &&
-    fieldConfig?.showConfig?.displayInProfile !== false;
+    fieldConfig?.showConfig?.displayInProfile !== false &&
+    !isInternalUserField(fieldConfig);
   const propsForCustomFields =
     pickCustomFieldProps(
       { publicData, metadata },
@@ -225,7 +228,7 @@ export const CustomUserFields = props => {
   };
   const sectionDetailsProps = {
     ...props,
-    fieldConfigs: userFieldConfig,
+    fieldConfigs: (userFieldConfig || []).filter(config => !isInternalUserField(config)),
     heading: 'ProfilePage.detailsTitle',
     rootClassName: css.userFieldSection,
   };

@@ -48,7 +48,7 @@ const defaultPublicPaths = {
   landingPage: { url: '/' },
   termsOfService: { url: '/terms-of-service' },
   privacyPolicy: { url: '/privacy-policy' },
-  search: { url: '/s' },
+  // /s no va: la búsqueda tiene noindex.
 };
 
 // Time-to-live (ttl) is set to one day aka 86400 seconds
@@ -142,10 +142,7 @@ const sitemapDefault = (req, res, rootUrl, isPrivateMarketplace) => {
 
     // Pass default public paths to SitemapStream.
     // These are defined in the beginning of the page
-    const { search, ...restOfPaths } = defaultPublicPaths;
-    const publicPaths = isPrivateMarketplace ? restOfPaths : defaultPublicPaths;
-
-    const paths = Object.values(publicPaths);
+    const paths = Object.values(defaultPublicPaths);
     Readable.from(paths).pipe(smStream);
 
     // Save to in-memory cache

@@ -54,8 +54,10 @@ const port = rootURL => {
  */
 exports.getRootURL = options => {
   const { rootURL, useDevApiServerPort = false } = options || {};
-  const protocol = USING_SSL ? 'https' : 'http';
   const rUrl = rootURL || marketplaceRootUrl;
+  // Si la URL del sitio ya viene con https (ej. Render, que termina el SSL en su proxy),
+  // se respeta aunque REACT_APP_SHARETRIBE_USING_SSL no esté en true.
+  const protocol = USING_SSL || /^https:\/\//i.test(rUrl || '') ? 'https' : 'http';
   const portInRootUrl = port(rUrl);
   const portMaybe =
     portInRootUrl && useDevApiServer && useDevApiServerPort
